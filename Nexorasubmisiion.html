@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXORA'26 | Live Submission & 3D Virtual Arena</title>
+    <!-- Google Fonts & Tailwind CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js for 3D Virtual Ground & Avatars -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        nexoraBg: '#050b18',
+                        nexoraCard: '#0d1633',
+                        nexoraCyan: '#00f2fe',
+                        nexoraBlue: '#4facfe',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #050b18;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+        }
+        .glow-text {
+            text-shadow: 0 0 15px rgba(0, 242, 254, 0.6);
+        }
+        .glow-box {
+            box-shadow: 0 0 30px rgba(0, 242, 254, 0.15);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a1128;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #00f2fe;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+    <!-- TOP HEADER -->
+    <header class="w-full bg-[#0a1128]/90 backdrop-blur-md border-b border-cyan-500/25 py-4 px-6 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="text-center md:text-left">
+                <p class="text-xs tracking-wider text-cyan-400 font-semibold uppercase">C. Abdul Hakeem College of Engineering & Technology</p>
+                <p class="text-[10px] text-gray-400">Department of Information Technology & Info Club Presents</p>
+            </div>
+            <div class="text-center">
+                <h1 class="font-orbitron font-extrabold text-2xl md:text-3xl bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-400 bg-clip-text text-transparent glow-text">
+                    NEXORA'26
+                </h1>
+                <p class="text-xs text-cyan-200 tracking-widest uppercase">National Level Technical Hackathon</p>
+            </div>
+            <div class="text-center md:text-right text-xs text-gray-300">
+                <span class="inline-block bg-cyan-950/80 border border-cyan-500/40 px-3 py-1 rounded-full text-cyan-300">
+                    📅 13-09-2026 | 📍 PG Seminar Hall
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN VIEWS CONTAINER -->
+    <main class="max-w-6xl w-full mx-auto p-4 md:p-8 flex-grow flex items-center justify-center">
+
+        <!-- ================= PAGE 1: SUBMISSION FORM VIEW ================= -->
+        <div id="viewSubmission" class="w-full max-w-xl bg-[#0d1633]/95 backdrop-blur-xl p-8 rounded-2xl glow-box">
+            <div class="text-center mb-6">
+                <div class="inline-block p-3 bg-cyan-500/10 border border-cyan-500/30 rounded-full mb-3">
+                    <span class="text-2xl">🚀</span>
+                </div>
+                <h2 class="font-orbitron font-bold text-2xl text-cyan-300 glow-text">PROJECT SUBMISSION PORTAL</h2>
+                <p class="text-xs text-gray-400 mt-1">Submit your GitHub link. Automatically saves to your Google Sheet & spawns your 3D Avatar!</p>
+            </div>
+
+            <form id="submissionForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Team Name / Participant Name</label>
+                    <input type="text" id="teamName" required placeholder="e.g. Code Warriors" 
+                        class="w-full bg-[#050b18] border border-cyan-500/30 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-400 transition">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">GitHub Repository Link</label>
+                    <input type="url" id="githubLink" required placeholder="https://github.com/username/project-repo" 
+                        class="w-full bg-[#050b18] border border-cyan-500/30 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-400 transition">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Project Description / Tech Stack</label>
+                    <textarea id="projectDesc" rows="3" required placeholder="Briefly describe what your app does..." 
+                        class="w-full bg-[#050b18] border border-cyan-500/30 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-400 transition resize-none"></textarea>
+                </div>
+
+                <button type="submit" id="submitBtn"
+                    class="w-full mt-4 font-orbitron font-bold text-sm tracking-wider py-3.5 px-6 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-lg shadow-cyan-500/25 transition transform active:scale-95 cursor-pointer">
+                    SUBMIT CODE & ENTER 3D ARENA ⚡
+                </button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <button onclick="switchView('arena')" class="text-xs text-cyan-400 hover:underline font-orbitron">
+                    👉 View Live 3D Virtual Arena & Submissions Directly
+                </button>
+            </div>
+        </div>
+
+
+        <!-- ================= PAGE 2: 3D VIRTUAL GROUND & SUBMISSIONS VIEW ================= -->
+        <div id="viewArena" class="w-full hidden space-y-6">
+            
+            <!-- Navigation Bar inside Arena -->
+            <div class="flex flex-col sm:flex-row justify-between items-center bg-[#0d1633]/90 backdrop-blur p-4 rounded-xl glow-box gap-3">
+                <div class="flex items-center gap-3">
+                    <span class="w-3 h-3 rounded-full bg-cyan-400 animate-ping"></span>
+                    <h2 class="font-orbitron font-bold text-cyan-300 text-lg">NEXORA'26 LIVE VIRTUAL ARENA</h2>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="exportToExcel()" class="font-orbitron text-xs bg-emerald-950 border border-emerald-500/40 text-emerald-300 px-3 py-2 rounded-lg hover:bg-emerald-900 transition flex items-center gap-1">
+                        📊 Export CSV
+                    </button>
+                    <button onclick="switchView('submission')" class="font-orbitron text-xs bg-cyan-950 border border-cyan-500/40 text-cyan-300 px-3 py-2 rounded-lg hover:bg-cyan-900 transition">
+                        + Submit Another
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3D Ground Canvas Container with Zoom Controls -->
+            <div class="relative bg-[#0d1633]/90 backdrop-blur-xl rounded-2xl glow-box overflow-hidden h-[450px] flex flex-col">
+                <div class="absolute top-4 left-4 z-10 bg-cyan-950/80 backdrop-blur border border-cyan-500/40 px-3 py-1 rounded-md">
+                    <span class="font-orbitron text-xs text-cyan-300 font-semibold">🌐 3D AVATAR GROUND (WITH FACES & ZOOM)</span>
+                </div>
+
+                <!-- Zoom In / Zoom Out UI Buttons -->
+                <div class="absolute top-4 right-4 z-10 flex gap-1 bg-cyan-950/80 backdrop-blur border border-cyan-500/40 p-1 rounded-md">
+                    <button onclick="zoomCamera(1)" class="w-7 h-7 bg-cyan-900/60 hover:bg-cyan-800 text-cyan-300 font-bold rounded flex items-center justify-center text-sm transition">+</button>
+                    <button onclick="zoomCamera(-1)" class="w-7 h-7 bg-cyan-900/60 hover:bg-cyan-800 text-cyan-300 font-bold rounded flex items-center justify-center text-sm transition">-</button>
+                </div>
+                
+                <div id="canvas-container" class="w-full h-full flex-grow cursor-grab active:cursor-grabbing"></div>
+                
+                <div class="absolute bottom-3 left-4 z-10 bg-black/60 backdrop-blur border border-cyan-500/20 px-3 py-1 rounded text-[11px] text-cyan-200">
+                    💡 Scroll wheel or buttons to zoom, click & drag to rotate view
+                </div>
+                <div id="avatarCountBadge" class="absolute bottom-3 right-4 z-10 text-xs bg-cyan-950/90 border border-cyan-500/40 px-3 py-1.5 rounded text-cyan-300 font-orbitron">
+                    Active Avatars: 0
+                </div>
+            </div>
+
+            <!-- Submissions Table Container -->
+            <div class="bg-[#0d1633]/90 backdrop-blur-xl p-5 rounded-2xl glow-box">
+                <div class="flex justify-between items-center mb-4 border-b border-cyan-500/20 pb-2">
+                    <h3 class="font-orbitron font-bold text-sm text-cyan-300">SUBMISSION TIMELINE (SYNCED TO GOOGLE SHEET)</h3>
+                    <span id="totalSubmissions" class="text-xs bg-cyan-900/50 text-cyan-300 px-2.5 py-0.5 rounded-full border border-cyan-500/30">0 Teams</span>
+                </div>
+
+                <div class="overflow-x-auto max-h-[200px] overflow-y-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-[11px] font-orbitron text-cyan-400 border-b border-cyan-500/20 sticky top-0 bg-[#0d1633]">
+                                <th class="py-2 px-3">#</th>
+                                <th class="py-2 px-3">Team Name</th>
+                                <th class="py-2 px-3">Description</th>
+                                <th class="py-2 px-3">Timestamp</th>
+                                <th class="py-2 px-3">GitHub Repo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboardTable" class="text-xs text-gray-300 divide-y divide-cyan-500/10">
+                            <tr id="emptyRow">
+                                <td colspan="5" class="text-center py-6 text-gray-500 italic">No submissions yet. Be the first to submit!</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="w-full py-4 text-center text-xs text-gray-400 border-t border-cyan-500/20 bg-[#0a1128]">
+        <p>Nexora'26 National Level Technical Hackathon • Student Coordinators: Abdul Raheem & Gokul</p>
+    </footer>
+
+    <!-- LOGIC SCRIPT -->
+    <script>
+        // CONFIGURED WITH YOUR GOOGLE APPS SCRIPT WEB APP URL
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzYTHEL3-_26CgcVwzauNg80crVUyA4zlwfgwWNX6ZFR3uHeVxHkiAYeGh5ajEDriYUYw/exec"; 
+
+        let submissions = JSON.parse(localStorage.getItem('nexora_submissions')) || [];
+
+        function switchView(viewName) {
+            const subView = document.getElementById('viewSubmission');
+            const arenaView = document.getElementById('viewArena');
+
+            if (viewName === 'arena') {
+                subView.classList.add('hidden');
+                arenaView.classList.remove('hidden');
+                initThreeJS();
+            } else {
+                arenaView.classList.add('hidden');
+                subView.classList.remove('hidden');
+            }
+        }
+
+        // --- FORM SUBMISSION HANDLER ---
+        const form = document.getElementById('submissionForm');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const teamName = document.getElementById('teamName').value.trim();
+            const githubLink = document.getElementById('githubLink').value.trim();
+            const projectDesc = document.getElementById('projectDesc').value.trim();
+            const now = new Date();
+            const timestampStr = now.toLocaleTimeString();
+
+            const newSub = {
+                teamName,
+                githubLink,
+                projectDesc,
+                timestamp: timestampStr,
+                rawTime: now.getTime()
+            };
+
+            submissions.push(newSub);
+            submissions.sort((a, b) => a.rawTime - b.rawTime);
+            localStorage.setItem('nexora_submissions', JSON.stringify(submissions));
+
+            // Silently send data to your Google Sheet in the background
+            if (GOOGLE_SCRIPT_URL) {
+                try {
+                    fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(newSub)
+                    });
+                } catch (err) {
+                    console.log("Sheet sync note:", err);
+                }
+            }
+
+            form.reset();
+            switchView('arena');
+            updateLeaderboardAndAvatars();
+        });
+
+        // --- EXPORT TO CSV BACKUP ---
+        function exportToExcel() {
+            if (submissions.length === 0) {
+                alert("No submissions to export yet!");
+                return;
+            }
+            let csvContent = "data:text/csv;charset=utf-8,Sr No,Team Name,Project Description,Timestamp,GitHub Link\n";
+            submissions.forEach((sub, index) => {
+                let row = [index + 1, `"${sub.teamName}"`, `"${sub.projectDesc}"`, `"${sub.timestamp}"`, `"${sub.githubLink}"`];
+                csvContent += row.join(",") + "\n";
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "Nexora26_Submissions.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // --- THREE.JS 3D VIRTUAL GROUND WITH FACES & ZOOM ---
+        let scene, camera, renderer, avatarsGroup, isThreeInitialized = false;
+        let cameraDistance = 16;
+
+        function initThreeJS() {
+            const container = document.getElementById('canvas-container');
+            if (!container) return;
+
+            if (isThreeInitialized) {
+                updateVirtualGround();
+                return;
+            }
+
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x050b18, 0.025);
+
+            camera = new THREE.PerspectiveCamera(55, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(0, 7, cameraDistance);
+            camera.lookAt(0, 1, 0);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+
+            // Lighting
+            scene.add(new THREE.AmbientLight(0xffffff, 0.9));
+            const dirLight = new THREE.DirectionalLight(0x00f2fe, 1.5);
+            dirLight.position.set(10, 20, 10);
+            scene.add(dirLight);
+
+            // Floor Grid
+            const gridHelper = new THREE.GridHelper(40, 40, 0x00f2fe, 0x1e3a8a);
+            scene.add(gridHelper);
+
+            // Mouse orbit controls & Scroll zoom
+            let isDragging = false;
+            let prevMousePos = { x: 0, y: 0 };
+            let sceneRotY = 0;
+
+            container.addEventListener('mousedown', (e) => { isDragging = true; prevMousePos = { x: e.clientX, y: e.clientY }; });
+            window.addEventListener('mouseup', () => { isDragging = false; });
+            container.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                sceneRotY += (e.clientX - prevMousePos.x) * 0.005;
+                scene.rotation.y = sceneRotY;
+                prevMousePos = { x: e.clientX, y: e.clientY };
+            });
+
+            container.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                cameraDistance += e.deltaY * 0.01;
+                cameraDistance = Math.max(6, Math.min(30, cameraDistance));
+                camera.position.z = cameraDistance;
+            }, { passive: false });
+
+            avatarsGroup = new THREE.Group();
+            scene.add(avatarsGroup);
+
+            isThreeInitialized = true;
+            updateVirtualGround();
+
+            function animate() {
+                requestAnimationFrame(animate);
+                avatarsGroup.children.forEach((avatar, i) => {
+                    avatar.position.y = Math.sin(Date.now() * 0.003 + i) * 0.1;
+                });
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            window.addEventListener('resize', () => {
+                if (!container) return;
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+        }
+
+        function zoomCamera(direction) {
+            cameraDistance -= direction * 2;
+            cameraDistance = Math.max(6, Math.min(30, cameraDistance));
+            if (camera) camera.position.z = cameraDistance;
+        }
+
+        // Create 3D Character Avatar with Face Features & Nameplate
+        function createHumanAvatar(teamName, timestamp, index) {
+            const group = new THREE.Group();
+            
+            const suitMat = new THREE.MeshStandardMaterial({ color: 0x00f2fe, emissive: 0x00f2fe, emissiveIntensity: 0.3, roughness: 0.3, metalness: 0.8 });
+            const skinMat = new THREE.MeshStandardMaterial({ color: 0xffdbac });
+            const eyeMat = new THREE.MeshBasicMaterial({ color: 0x050b18 });
+
+            // Torso
+            const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.2, 0.9, 16), suitMat);
+            torso.position.y = 1.05;
+            group.add(torso);
+
+            // Head Sphere
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), skinMat);
+            head.position.y = 1.75;
+            group.add(head);
+
+            // Face features: Eyes & Smile
+            const leftEye = new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 8), eyeMat);
+            leftEye.position.set(-0.07, 1.78, 0.17);
+            group.add(leftEye);
+
+            const rightEye = new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 8), eyeMat);
+            rightEye.position.set(0.07, 1.78, 0.17);
+            group.add(rightEye);
+
+            const smileGeo = new THREE.TorusGeometry(0.05, 0.012, 8, 16, Math.PI);
+            const smile = new THREE.Mesh(smileGeo, eyeMat);
+            smile.rotation.x = Math.PI;
+            smile.position.set(0, 1.68, 0.17);
+            group.add(smile);
+
+            // Limbs
+            const armGeo = new THREE.CylinderGeometry(0.08, 0.07, 0.7, 12);
+            const leftArm = new THREE.Mesh(armGeo, suitMat); leftArm.position.set(-0.35, 1.05, 0); leftArm.rotation.z = 0.2; group.add(leftArm);
+            const rightArm = new THREE.Mesh(armGeo, suitMat); rightArm.position.set(0.35, 1.05, 0); rightArm.rotation.z = -0.2; group.add(rightArm);
+
+            const legGeo = new THREE.CylinderGeometry(0.09, 0.08, 0.75, 12);
+            const leftLeg = new THREE.Mesh(legGeo, suitMat); leftLeg.position.set(-0.13, 0.4, 0); group.add(leftLeg);
+            const rightLeg = new THREE.Mesh(legGeo, suitMat); rightLeg.position.set(0.13, 0.4, 0); group.add(rightLeg);
+
+            // Floating Nameplate Canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = 384; canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            
+            ctx.fillStyle = 'rgba(10, 17, 40, 0.9)';
+            ctx.roundRect(10, 10, 364, 108, 12);
+            ctx.fill();
+            ctx.strokeStyle = '#00f2fe';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            ctx.fillStyle = '#00f2fe';
+            ctx.font = 'bold 22px Orbitron, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${teamName}`, 192, 45);
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '15px Inter, sans-serif';
+            ctx.fillText(`⏱️ ${timestamp}`, 192, 85);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true }));
+            sprite.scale.set(2.2, 0.75, 1);
+            sprite.position.y = 2.5;
+            group.add(sprite);
+
+            return group;
+        }
+
+        function updateVirtualGround() {
+            if (!avatarsGroup) return;
+            avatarsGroup.clear();
+            document.getElementById('avatarCountBadge').innerText = `Active Avatars: ${submissions.length}`;
+
+            submissions.forEach((sub, idx) => {
+                const avatar = createHumanAvatar(sub.teamName, sub.timestamp, idx);
+                const angle = idx * 0.9;
+                const radius = 3 + Math.floor(idx / 6) * 2.5;
+                avatar.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
+                avatarsGroup.add(avatar);
+            });
+        }
+
+        function updateLeaderboardAndAvatars() {
+            updateVirtualGround();
+            
+            const leaderboardTable = document.getElementById('leaderboardTable');
+            const totalSubmissionsBadge = document.getElementById('totalSubmissions');
+            leaderboardTable.innerHTML = '';
+            totalSubmissionsBadge.innerText = `${submissions.length} Teams`;
+
+            if (submissions.length === 0) {
+                leaderboardTable.innerHTML = `<tr id="emptyRow"><td colspan="5" class="text-center py-6 text-gray-500 italic">No submissions yet. Be the first to submit!</td></tr>`;
+                return;
+            }
+
+            submissions.forEach((sub, index) => {
+                const row = document.createElement('tr');
+                row.className = "hover:bg-cyan-950/30 transition border-b border-cyan-500/10";
+
+                row.innerHTML = `
+                    <td class="py-3 px-3 font-orbitron text-cyan-400 font-bold">#${index + 1}</td>
+                    <td class="py-3 px-3 font-semibold text-white">${escapeHtml(sub.teamName)}</td>
+                    <td class="py-3 px-3 text-gray-300 max-w-[200px] truncate">${escapeHtml(sub.projectDesc)}</td>
+                    <td class="py-3 px-3 text-cyan-300 font-mono font-bold">${sub.timestamp}</td>
+                    <td class="py-3 px-3"><a href="${escapeHtml(sub.githubLink)}" target="_blank" class="text-cyan-400 underline hover:text-cyan-300 text-xs truncate max-w-[140px] inline-block align-bottom">${escapeHtml(sub.githubLink)}</a></td>
+                `;
+                leaderboardTable.appendChild(row);
+            });
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        if (submissions.length > 0) {
+            updateLeaderboardAndAvatars();
+        }
+    </script>
+</body>
+</html>
