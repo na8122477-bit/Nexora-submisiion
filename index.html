@@ -116,7 +116,7 @@
                 <div class="flex justify-between items-center mb-3 border-b border-cyan-500/20 pb-2">
                     <div class="flex items-center gap-2">
                         <div class="w-3 h-3 bg-cyan-400 rounded-full animate-pulse"></div>
-                        <h3 class="font-orbitron font-bold text-sm text-cyan-300 tracking-wider">LIVE SUBMISSIONS FEED & EMOJI REACTIONS</h3>
+                        <h3 class="font-orbitron font-bold text-sm text-cyan-300 tracking-wider">LIVE SUBMISSIONS FEED</h3>
                     </div>
                     <span id="totalSubmissions" class="text-xs bg-cyan-950 text-cyan-300 px-3 py-1 rounded-full border border-cyan-500/30 font-mono">0 Submissions</span>
                 </div>
@@ -128,13 +128,17 @@
 
             <!-- 3D VIRTUAL GROUND CONTAINER -->
             <div class="relative glass-panel rounded-3xl glow-box overflow-hidden h-[520px] flex flex-col">
-                <div class="absolute top-4 left-4 z-10 glass-panel border border-cyan-500/40 px-4 py-1.5 rounded-xl">
-                    <span class="font-orbitron text-xs text-cyan-300 font-bold tracking-widest">⚡ 3D AVATAR ARENA (Click Emojis Below Cards)</span>
+                <div class="absolute top-4 left-4 z-10 glass-panel border border-cyan-500/40 px-4 py-1.5 rounded-xl flex items-center gap-3">
+                    <span class="font-orbitron text-xs text-cyan-300 font-bold tracking-widest">⚡ 3D AVATAR ARENA</span>
+                    <div class="flex gap-1">
+                        <button onclick="zoomCamera(1)" class="bg-cyan-950 text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30 text-xs font-bold hover:bg-cyan-900">+</button>
+                        <button onclick="zoomCamera(-1)" class="bg-cyan-950 text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30 text-xs font-bold hover:bg-cyan-900">-</button>
+                    </div>
                 </div>
                 <div id="canvas-container" class="w-full h-full flex-grow cursor-grab active:cursor-grabbing"></div>
                 <div id="emoji-overlay-layer" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
                 <div class="absolute bottom-4 right-4 z-10 text-[11px] text-gray-300 glass-panel px-3 py-1.5 rounded-lg border border-cyan-500/20">
-                    💡 Tip: Click & drag to rotate 3D view | Scroll to zoom
+                    💡 Tip: Click & drag to rotate view | Scroll to zoom
                 </div>
             </div>
 
@@ -158,6 +162,8 @@
         let submissions = [];
         let scene, camera, renderer, avatarGroup;
         let isDragging = false, previousMousePosition = { x: 0, y: 0 }, sceneRotationY = 0;
+        let myTeamId = localStorage.getItem('nexora_my_team_id') || null;
+        const possibleFaces = ['😎', '🤖', '🚀', '🔥', '💻', '⚡', '👽', '👾'];
 
         window.addEventListener('DOMContentLoaded', () => {
             if (localStorage.getItem('nexora_submitted')) {
@@ -188,9 +194,9 @@
             const now = new Date();
             const timestampStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
-            const { error } = await _supabase.from('submissions').insert([
+            const { data, error } = await _supabase.from('submissions').insert([
                 { team_name: teamName, github_link: githubLink, project_desc: projectDesc, timestamp: timestampStr }
-            ]);
+            ]).select();
 
             if (error) {
                 alert('Submission failed: ' + error.message);
@@ -198,6 +204,10 @@
                 submitBtn.innerText = "DEPLOY & ENTER ARENA 🚀";
             } else {
                 localStorage.setItem('nexora_submitted', 'true');
+                if (data && data.length > 0) {
+                    myTeamId = data[0].id;
+                    localStorage.setItem('nexora_my_team_id', myTeamId);
+                }
                 switchToArena();
                 fetchSubmissions();
             }
@@ -217,9 +227,8 @@
             }
         }
 
-        // --- REALTIME SUBSCRIPTIONS (Submissions & Reactions) ---
+        // --- REALTIME SUBSCRIPTIONS ---
         function setupRealtimeSubscription() {
-            // New Submissions listener
             _supabase.channel('public:submissions')
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'submissions' }, payload => {
                     const exists = submissions.some(sub => sub.id === payload.new.id);
@@ -232,7 +241,6 @@
                 })
                 .subscribe();
 
-            // Emoji Reactions Broadcast listener
             _supabase.channel('public:reactions')
                 .on('broadcast', { event: 'reaction' }, payload => {
                     triggerFloatingEmoji(payload.payload.teamId, payload.payload.emoji);
@@ -240,9 +248,13 @@
                 .subscribe();
         }
 
-        // Send reaction broadcast to all connected users
         async function sendReaction(teamId, emoji) {
-            triggerFloatingEmoji(teamId, emoji); // show locally immediately
+            // Only allow user to react if it's their own submission card
+            if (teamId !== myTeamId) {
+                alert("You can only send emoji reactions from your own team submission card!");
+                return;
+            }
+            triggerFloatingEmoji(teamId, emoji);
             await _supabase.channel('public:reactions').send({
                 type: 'broadcast',
                 event: 'reaction',
@@ -250,14 +262,13 @@
             });
         }
 
-        // Spawn floating emoji animation over target avatar
         function triggerFloatingEmoji(teamId, emoji) {
             if (!avatarGroup) return;
             avatarGroup.children.forEach(avatar => {
                 if (avatar.userData.teamId === teamId) {
                     const vector = new THREE.Vector3();
                     avatar.getWorldPosition(vector);
-                    vector.y += 2.6; // above head
+                    vector.y += 2.8;
                     vector.project(camera);
 
                     const container = document.getElementById('canvas-container');
@@ -288,26 +299,38 @@
 
             containerBox.innerHTML = '';
             submissions.forEach((sub, idx) => {
+                const isMyCard = (sub.id === myTeamId);
                 const card = document.createElement('div');
-                card.className = "bg-[#050b18] border border-cyan-500/30 p-3 rounded-xl min-w-[240px] shrink-0 glow-box flex flex-col justify-between";
+                card.className = `bg-[#050b18] border ${isMyCard ? 'border-cyan-400 shadow-lg shadow-cyan-500/20' : 'border-cyan-500/30'} p-3 rounded-xl min-w-[240px] shrink-0 glow-box flex flex-col justify-between`;
+                
+                let reactionSection = '';
+                if (isMyCard) {
+                    reactionSection = `
+                        <div class="bg-cyan-950/60 border border-cyan-500/30 px-2 py-1.5 rounded-lg my-2 text-center">
+                            <p class="text-[9px] text-cyan-300 font-bold mb-1 uppercase">Your Reaction Control Panel</p>
+                            <div class="flex items-center justify-between px-2">
+                                <button onclick="sendReaction('${sub.id}', '🔥')" class="hover:scale-125 transition text-sm">🔥</button>
+                                <button onclick="sendReaction('${sub.id}', '🚀')" class="hover:scale-125 transition text-sm">🚀</button>
+                                <button onclick="sendReaction('${sub.id}', '💡')" class="hover:scale-125 transition text-sm">💡</button>
+                                <button onclick="sendReaction('${sub.id}', '👏')" class="hover:scale-125 transition text-sm">👏</button>
+                                <button onclick="sendReaction('${sub.id}', '❤️')" class="hover:scale-125 transition text-sm">❤️</button>
+                            </div>
+                        </div>`;
+                } else {
+                    reactionSection = `<div class="text-[10px] text-gray-500 italic text-center py-2 my-2 bg-black/20 rounded-lg">🔒 Reactions locked to your own card</div>`;
+                }
+
                 card.innerHTML = `
                     <div>
                         <div class="flex justify-between items-center mb-1">
-                            <span class="text-[10px] text-cyan-400 font-mono font-bold uppercase">Submission #${idx + 1}</span>
+                            <span class="text-[10px] text-cyan-400 font-mono font-bold uppercase">Submission #${idx + 1} ${isMyCard ? '(YOU)' : ''}</span>
                             <span class="text-[10px] text-gray-400 font-mono">${escapeHtml(sub.timestamp)}</span>
                         </div>
                         <h4 class="font-orbitron font-bold text-sm text-white truncate">${escapeHtml(sub.team_name)}</h4>
                         <p class="text-[11px] text-gray-400 truncate mt-1">${escapeHtml(sub.project_desc || 'No description')}</p>
                     </div>
                     <div>
-                        <!-- Reaction Emojis Bar -->
-                        <div class="flex items-center justify-between bg-cyan-950/40 border border-cyan-500/20 px-2 py-1.5 rounded-lg my-2">
-                            <button onclick="sendReaction('${sub.id}', '🔥')" class="hover:scale-125 transition text-sm">🔥</button>
-                            <button onclick="sendReaction('${sub.id}', '🚀')" class="hover:scale-125 transition text-sm">🚀</button>
-                            <button onclick="sendReaction('${sub.id}', '💡')" class="hover:scale-125 transition text-sm">💡</button>
-                            <button onclick="sendReaction('${sub.id}', '👏')" class="hover:scale-125 transition text-sm">👏</button>
-                            <button onclick="sendReaction('${sub.id}', '❤️')" class="hover:scale-125 transition text-sm">❤️</button>
-                        </div>
+                        ${reactionSection}
                         <div class="pt-1 border-t border-cyan-500/10">
                             <a href="${escapeHtml(sub.github_link)}" target="_blank" class="text-[11px] text-cyan-400 underline hover:text-cyan-300 truncate block">View Repository ➔</a>
                         </div>
@@ -317,7 +340,7 @@
             });
         }
 
-        // --- THREE.JS 3D VIRTUAL GROUND & REALISTIC AVATARS ---
+        // --- THREE.JS 3D VIRTUAL GROUND & AVATARS ---
         function initThreeJS() {
             const container = document.getElementById('canvas-container');
             scene = new THREE.Scene();
@@ -350,13 +373,25 @@
                 previousMousePosition = { x: e.clientX, y: e.clientY };
             });
 
+            container.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                camera.position.z += e.deltaY * 0.01;
+                camera.position.z = Math.clamp ? Math.clamp(camera.position.z, 5, 30) : Math.max(5, Math.min(30, camera.position.z));
+            }, { passive: false });
+
             avatarGroup = new THREE.Group();
             scene.add(avatarGroup);
             updateAvatarPositions();
             animate();
         }
 
-        function createRealisticAvatar(teamName, timestamp, teamId) {
+        function zoomCamera(direction) {
+            if (!camera) return;
+            camera.position.z += direction * -2;
+            camera.position.z = Math.max(5, Math.min(30, camera.position.z));
+        }
+
+        function createRealisticAvatar(teamName, timestamp, teamId, index) {
             const group = new THREE.Group();
             group.userData = { teamId: teamId };
 
@@ -377,6 +412,25 @@
             const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), cyberMat);
             head.position.y = 1.5;
             group.add(head);
+
+            // Random Emoji Face Canvas on Head
+            const faceCanvas = document.createElement('canvas');
+            const faceCtx = faceCanvas.getContext('2d');
+            faceCanvas.width = 128;
+            faceCanvas.height = 128;
+            faceCtx.fillStyle = '#0a1128';
+            faceCtx.fillRect(0, 0, 128, 128);
+            faceCtx.font = '70px sans-serif';
+            faceCtx.textAlign = 'center';
+            faceCtx.textBaseline = 'middle';
+            const randomEmojiFace = possibleFaces[index % possibleFaces.length];
+            faceCtx.fillText(randomEmojiFace, 64, 64);
+
+            const faceTexture = new THREE.CanvasTexture(faceCanvas);
+            const faceMat = new THREE.MeshBasicMaterial({ map: faceTexture });
+            const faceMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.25, 0.25), faceMat);
+            faceMesh.position.set(0, 1.5, 0.21);
+            group.add(faceMesh);
 
             // Arms
             const armGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.7, 8);
@@ -408,12 +462,12 @@
             
             context.fillStyle = 'rgba(10, 17, 40, 0.95)';
             context.fillRect(0, 0, 320, 90);
-            context.strokeStyle = '#00f2fe';
+            context.strokeStyle = (teamId === myTeamId) ? '#ffd700' : '#00f2fe';
             context.lineWidth = 4;
             context.strokeRect(0, 0, 320, 90);
 
             context.font = 'Bold 22px Orbitron, sans-serif';
-            context.fillStyle = '#00f2fe';
+            context.fillStyle = (teamId === myTeamId) ? '#ffd700' : '#00f2fe';
             context.textAlign = 'center';
             context.fillText(teamName.length > 16 ? teamName.substring(0, 14) + '...' : teamName, 160, 35);
 
@@ -435,7 +489,7 @@
             if (!avatarGroup) return;
             avatarGroup.clear();
             submissions.forEach((sub, idx) => {
-                const avatar = createRealisticAvatar(sub.team_name, sub.timestamp, sub.id);
+                const avatar = createRealisticAvatar(sub.team_name, sub.timestamp, sub.id, idx);
                 const angle = idx * 0.8;
                 const radius = 2.5 + Math.floor(idx / 6) * 2.5;
                 avatar.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
