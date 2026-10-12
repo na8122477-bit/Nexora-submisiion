@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- Supabase JS Client Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
@@ -126,7 +125,6 @@
 
     <!-- SUPABASE CONNECTION & APP LOGIC -->
     <script>
-        // SUPABASE CREDENTIALS INTEGRATED
         const SUPABASE_URL = 'https://kdnmpyaiwndcwcgvdkqz.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_qDWJgoi8nFcc53-t5L_gMg_XyxaIC3P';
 
@@ -170,10 +168,11 @@
         scene.add(avatarGroup);
         let submissions = [];
 
-        function createAvatarMesh(index) {
+        function createAvatarMesh(index, teamName) {
             const group = new THREE.Group();
             const colorHex = index === 0 ? 0xffd700 : (index === 1 ? 0xc0c0c0 : (index === 2 ? 0xcd7f32 : 0x00f2fe));
             
+            // Avatar Body
             const body = new THREE.Mesh(
                 new THREE.CylinderGeometry(0.3, 0.4, 1.4, 16),
                 new THREE.MeshStandardMaterial({ color: colorHex, emissive: colorHex, emissiveIntensity: 0.6, roughness: 0.2, metalness: 0.8 })
@@ -181,6 +180,7 @@
             body.position.y = 0.7;
             group.add(body);
 
+            // Avatar Head
             const head = new THREE.Mesh(
                 new THREE.SphereGeometry(0.25, 16, 16),
                 new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: colorHex, emissiveIntensity: 0.4 })
@@ -188,13 +188,37 @@
             head.position.y = 1.6;
             group.add(head);
 
+            // Floating Name Label Canvas Sprite above the avatar
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = 256;
+            canvas.height = 64;
+            context.fillStyle = 'rgba(10, 17, 40, 0.85)';
+            context.roundRect ? context.roundRect(0, 0, 256, 64, 10) : context.fillRect(0, 0, 256, 64);
+            context.strokeStyle = index === 0 ? '#ffd700' : '#00f2fe';
+            context.lineWidth = 4;
+            context.strokeRect(0, 0, 256, 64);
+            
+            context.font = 'Bold 22px Orbitron, sans-serif';
+            context.fillStyle = '#ffffff';
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            context.fillText(teamName.length > 14 ? teamName.substring(0, 12) + '...' : teamName, 128, 32);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
+            const sprite = new THREE.Sprite(spriteMaterial);
+            sprite.position.set(0, 2.3, 0);
+            sprite.scale.set(1.5, 0.375, 1);
+            group.add(sprite);
+
             return group;
         }
 
         function updateAvatarPositions() {
             avatarGroup.clear();
             submissions.forEach((sub, idx) => {
-                const avatar = createAvatarMesh(idx);
+                const avatar = createAvatarMesh(idx, sub.team_name);
                 const angle = idx * 0.8;
                 const radius = 2 + Math.floor(idx / 6) * 2.2;
                 avatar.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
@@ -216,10 +240,11 @@
             }
         }
 
-        // Realtime Subscription so screens update automatically when anyone submits!
+        // Realtime Subscription
         _supabase.channel('public:submissions')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'submissions' }, payload => {
                 submissions.push(payload.new);
+                submissions.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
                 renderLeaderboard();
                 updateAvatarPositions();
             })
@@ -246,6 +271,7 @@
                 alert('Submission failed: ' + error.message);
             } else {
                 form.reset();
+                fetchSubmissions(); // Refresh immediately
             }
             submitBtn.disabled = false;
             submitBtn.innerText = "SUBMIT PROJECT CODE 🚀";
@@ -274,7 +300,7 @@
                 row.innerHTML = `
                     <td class="py-2.5 px-3">${rankBadge}</td>
                     <td class="py-2.5 px-3 font-semibold text-white">${escapeHtml(sub.team_name)}</td>
-                    <td class="py-2.5 px-3 text-cyan-300 font-mono">${sub.timestamp}</td>
+                    <td class="py-2.5 px-3 text-cyan-300 font-mono">${escapeHtml(sub.timestamp)}</td>
                     <td class="py-2.5 px-3"><a href="${escapeHtml(sub.github_link)}" target="_blank" class="text-cyan-400 underline hover:text-cyan-300 text-xs truncate max-w-[150px] inline-block align-bottom">${escapeHtml(sub.github_link)}</a></td>
                 `;
                 leaderboardTable.appendChild(row);
