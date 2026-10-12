@@ -27,6 +27,17 @@
         ::-webkit-scrollbar-thumb { background: #00f2fe; border-radius: 3px; }
         .fade-in { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes floatUp { 
+            0% { transform: translateY(0px) scale(0.8); opacity: 1; } 
+            100% { transform: translateY(-80px) scale(1.5); opacity: 0; } 
+        }
+        .floating-emoji {
+            position: absolute;
+            font-size: 32px;
+            pointer-events: none;
+            animation: floatUp 1.5s ease-out forwards;
+            z-index: 50;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
@@ -105,7 +116,7 @@
                 <div class="flex justify-between items-center mb-3 border-b border-cyan-500/20 pb-2">
                     <div class="flex items-center gap-2">
                         <div class="w-3 h-3 bg-cyan-400 rounded-full animate-pulse"></div>
-                        <h3 class="font-orbitron font-bold text-sm text-cyan-300 tracking-wider">LIVE SUBMISSIONS FEED</h3>
+                        <h3 class="font-orbitron font-bold text-sm text-cyan-300 tracking-wider">LIVE SUBMISSIONS FEED & EMOJI REACTIONS</h3>
                     </div>
                     <span id="totalSubmissions" class="text-xs bg-cyan-950 text-cyan-300 px-3 py-1 rounded-full border border-cyan-500/30 font-mono">0 Submissions</span>
                 </div>
@@ -116,11 +127,12 @@
             </div>
 
             <!-- 3D VIRTUAL GROUND CONTAINER -->
-            <div class="relative glass-panel rounded-3xl glow-box overflow-hidden h-[500px] flex flex-col">
+            <div class="relative glass-panel rounded-3xl glow-box overflow-hidden h-[520px] flex flex-col">
                 <div class="absolute top-4 left-4 z-10 glass-panel border border-cyan-500/40 px-4 py-1.5 rounded-xl">
-                    <span class="font-orbitron text-xs text-cyan-300 font-bold tracking-widest">⚡ 3D REALISTIC AVATAR ARENA</span>
+                    <span class="font-orbitron text-xs text-cyan-300 font-bold tracking-widest">⚡ 3D AVATAR ARENA (Click Emojis Below Cards)</span>
                 </div>
                 <div id="canvas-container" class="w-full h-full flex-grow cursor-grab active:cursor-grabbing"></div>
+                <div id="emoji-overlay-layer" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
                 <div class="absolute bottom-4 right-4 z-10 text-[11px] text-gray-300 glass-panel px-3 py-1.5 rounded-lg border border-cyan-500/20">
                     💡 Tip: Click & drag to rotate 3D view | Scroll to zoom
                 </div>
@@ -132,7 +144,7 @@
 
     <!-- FOOTER -->
     <footer class="w-full py-4 text-center text-xs text-gray-400 border-t border-cyan-500/20 glass-panel">
-        <p>Nexora'26 National Level Technical Hackathon • Student Coordinators: Abdul Raheem & Gokul</p>
+        <p>Nexora'26 National Level Technical Hackathon • Developed by Nayeem, Mussawir, Karthi</p>
     </footer>
 
     <!-- LOGIC SCRIPT -->
@@ -153,6 +165,7 @@
                 document.getElementById('submissionForm').classList.add('opacity-40', 'pointer-events-none');
             }
             fetchSubmissions();
+            setupRealtimeSubscription();
         });
 
         function switchToArena() {
@@ -204,15 +217,65 @@
             }
         }
 
-        // Realtime Subscription
-        _supabase.channel('public:submissions')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'submissions' }, payload => {
-                submissions.push(payload.new);
-                submissions.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-                renderBoxyLeaderboard();
-                if (scene) updateAvatarPositions();
-            })
-            .subscribe();
+        // --- REALTIME SUBSCRIPTIONS (Submissions & Reactions) ---
+        function setupRealtimeSubscription() {
+            // New Submissions listener
+            _supabase.channel('public:submissions')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'submissions' }, payload => {
+                    const exists = submissions.some(sub => sub.id === payload.new.id);
+                    if (!exists) {
+                        submissions.push(payload.new);
+                        submissions.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+                        renderBoxyLeaderboard();
+                        if (scene) updateAvatarPositions();
+                    }
+                })
+                .subscribe();
+
+            // Emoji Reactions Broadcast listener
+            _supabase.channel('public:reactions')
+                .on('broadcast', { event: 'reaction' }, payload => {
+                    triggerFloatingEmoji(payload.payload.teamId, payload.payload.emoji);
+                })
+                .subscribe();
+        }
+
+        // Send reaction broadcast to all connected users
+        async function sendReaction(teamId, emoji) {
+            triggerFloatingEmoji(teamId, emoji); // show locally immediately
+            await _supabase.channel('public:reactions').send({
+                type: 'broadcast',
+                event: 'reaction',
+                payload: { teamId, emoji }
+            });
+        }
+
+        // Spawn floating emoji animation over target avatar
+        function triggerFloatingEmoji(teamId, emoji) {
+            if (!avatarGroup) return;
+            avatarGroup.children.forEach(avatar => {
+                if (avatar.userData.teamId === teamId) {
+                    const vector = new THREE.Vector3();
+                    avatar.getWorldPosition(vector);
+                    vector.y += 2.6; // above head
+                    vector.project(camera);
+
+                    const container = document.getElementById('canvas-container');
+                    if (!container) return;
+                    const x = (vector.x *  .5 + .5) * container.clientWidth;
+                    const y = (vector.y * -.5 + .5) * container.clientHeight;
+
+                    const el = document.createElement('div');
+                    el.className = 'floating-emoji';
+                    el.innerText = emoji;
+                    el.style.left = `${x}px`;
+                    el.style.top = `${y}px`;
+
+                    document.getElementById('emoji-overlay-layer').appendChild(el);
+                    setTimeout(() => el.remove(), 1500);
+                }
+            });
+        }
 
         function renderBoxyLeaderboard() {
             document.getElementById('totalSubmissions').innerText = `${submissions.length} Submissions`;
@@ -226,7 +289,7 @@
             containerBox.innerHTML = '';
             submissions.forEach((sub, idx) => {
                 const card = document.createElement('div');
-                card.className = "bg-[#050b18] border border-cyan-500/30 p-3 rounded-xl min-w-[220px] shrink-0 glow-box flex flex-col justify-between";
+                card.className = "bg-[#050b18] border border-cyan-500/30 p-3 rounded-xl min-w-[240px] shrink-0 glow-box flex flex-col justify-between";
                 card.innerHTML = `
                     <div>
                         <div class="flex justify-between items-center mb-1">
@@ -236,8 +299,18 @@
                         <h4 class="font-orbitron font-bold text-sm text-white truncate">${escapeHtml(sub.team_name)}</h4>
                         <p class="text-[11px] text-gray-400 truncate mt-1">${escapeHtml(sub.project_desc || 'No description')}</p>
                     </div>
-                    <div class="mt-3 pt-2 border-t border-cyan-500/10">
-                        <a href="${escapeHtml(sub.github_link)}" target="_blank" class="text-[11px] text-cyan-400 underline hover:text-cyan-300 truncate block">View Repository ➔</a>
+                    <div>
+                        <!-- Reaction Emojis Bar -->
+                        <div class="flex items-center justify-between bg-cyan-950/40 border border-cyan-500/20 px-2 py-1.5 rounded-lg my-2">
+                            <button onclick="sendReaction('${sub.id}', '🔥')" class="hover:scale-125 transition text-sm">🔥</button>
+                            <button onclick="sendReaction('${sub.id}', '🚀')" class="hover:scale-125 transition text-sm">🚀</button>
+                            <button onclick="sendReaction('${sub.id}', '💡')" class="hover:scale-125 transition text-sm">💡</button>
+                            <button onclick="sendReaction('${sub.id}', '👏')" class="hover:scale-125 transition text-sm">👏</button>
+                            <button onclick="sendReaction('${sub.id}', '❤️')" class="hover:scale-125 transition text-sm">❤️</button>
+                        </div>
+                        <div class="pt-1 border-t border-cyan-500/10">
+                            <a href="${escapeHtml(sub.github_link)}" target="_blank" class="text-[11px] text-cyan-400 underline hover:text-cyan-300 truncate block">View Repository ➔</a>
+                        </div>
                     </div>
                 `;
                 containerBox.appendChild(card);
@@ -283,8 +356,10 @@
             animate();
         }
 
-        function createRealisticAvatar(teamName, timestamp) {
+        function createRealisticAvatar(teamName, timestamp, teamId) {
             const group = new THREE.Group();
+            group.userData = { teamId: teamId };
+
             const cyberMat = new THREE.MeshStandardMaterial({ 
                 color: 0x00f2fe, 
                 emissive: 0x0055ff, 
@@ -303,7 +378,7 @@
             head.position.y = 1.5;
             group.add(head);
 
-            // Left Arm & Right Arm
+            // Arms
             const armGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.7, 8);
             const leftArm = new THREE.Mesh(armGeo, cyberMat);
             leftArm.position.set(-0.35, 0.85, 0);
@@ -360,7 +435,7 @@
             if (!avatarGroup) return;
             avatarGroup.clear();
             submissions.forEach((sub, idx) => {
-                const avatar = createRealisticAvatar(sub.team_name, sub.timestamp);
+                const avatar = createRealisticAvatar(sub.team_name, sub.timestamp, sub.id);
                 const angle = idx * 0.8;
                 const radius = 2.5 + Math.floor(idx / 6) * 2.5;
                 avatar.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
