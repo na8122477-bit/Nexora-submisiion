@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXORA'26 | Live Hackathon Submission & 3D Ground</title>
+    <title>NEXORA'26 | Live Hackathon Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -18,112 +18,122 @@
         }
     </script>
     <style>
-        body { background-color: #050b18; color: #ffffff; font-family: 'Inter', sans-serif; }
-        .glow-text { text-shadow: 0 0 15px rgba(0, 242, 254, 0.6); }
-        .glow-box { box-shadow: 0 0 25px rgba(0, 242, 254, 0.15); border: 1px solid rgba(0, 242, 254, 0.3); }
+        body { background-color: #030712; color: #ffffff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .glow-text { text-shadow: 0 0 20px rgba(0, 242, 254, 0.7); }
+        .glow-box { box-shadow: 0 0 30px rgba(0, 242, 254, 0.15); border: 1px solid rgba(0, 242, 254, 0.3); }
+        .glass-panel { background: rgba(13, 22, 51, 0.75); backdrop-filter: blur(16px); }
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0a1128; }
+        ::-webkit-scrollbar-track { background: #030712; }
         ::-webkit-scrollbar-thumb { background: #00f2fe; border-radius: 3px; }
+        .fade-in { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between overflow-x-hidden">
+<body class="min-h-screen flex flex-col justify-between">
 
-    <header class="w-full bg-[#0a1128]/80 backdrop-blur-md border-b border-cyan-500/20 py-4 px-6 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+    <!-- HEADER -->
+    <header class="w-full glass-panel border-b border-cyan-500/20 py-4 px-6 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
             <div class="text-center md:text-left">
                 <p class="text-xs tracking-wider text-cyan-400 font-semibold uppercase">C. Abdul Hakeem College of Engineering & Technology</p>
-                <p class="text-[10px] text-gray-400">Department of Information Technology & Info Club Presents</p>
+                <p class="text-[10px] text-gray-400">Department of Information Technology & Info Club Present</p>
             </div>
             <div class="text-center">
                 <h1 class="font-orbitron font-extrabold text-2xl md:text-3xl bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-400 bg-clip-text text-transparent glow-text">
                     NEXORA'26
                 </h1>
-                <p class="text-xs text-cyan-200 tracking-widest uppercase">Live Submission & Virtual Arena</p>
+                <p class="text-[11px] text-cyan-200 tracking-widest uppercase">National Level Technical Hackathon</p>
             </div>
             <div class="text-center md:text-right text-xs text-gray-300">
-                <span class="inline-block bg-cyan-950/80 border border-cyan-500/40 px-3 py-1 rounded-full text-cyan-300">
+                <span class="inline-block bg-cyan-950/80 border border-cyan-500/40 px-3 py-1 rounded-full text-cyan-300 font-mono">
                     📅 13-09-2026 | 📍 PG Seminar Hall
                 </span>
             </div>
         </div>
     </header>
 
-    <main class="max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow">
-        
-        <!-- SUBMISSION PORTAL -->
-        <section class="lg:col-span-4 bg-[#0d1633]/90 backdrop-blur-xl p-6 rounded-2xl glow-box flex flex-col justify-between">
-            <div>
-                <div class="flex items-center gap-2 mb-6 border-b border-cyan-500/20 pb-3">
-                    <div class="w-3 h-3 bg-cyan-400 rounded-full animate-ping"></div>
-                    <h2 class="font-orbitron font-bold text-lg text-cyan-300">PROJECT SUBMISSION</h2>
+    <!-- MAIN DYNAMIC CONTENT CONTAINER -->
+    <main class="max-w-7xl w-full mx-auto p-4 md:p-6 flex-grow flex flex-col justify-center">
+
+        <!-- PAGE 1: SUBMISSION FORM VIEW -->
+        <div id="pageSubmission" class="max-w-xl mx-auto w-full fade-in py-8">
+            <div class="glass-panel p-8 rounded-3xl glow-box">
+                <div class="flex items-center gap-3 mb-6 border-b border-cyan-500/20 pb-4">
+                    <div class="w-3.5 h-3.5 bg-cyan-400 rounded-full animate-ping"></div>
+                    <div>
+                        <h2 class="font-orbitron font-bold text-xl text-cyan-300">PROJECT SUBMISSION PORTAL</h2>
+                        <p class="text-xs text-gray-400">Submit your GitHub repository to enter the virtual arena.</p>
+                    </div>
                 </div>
 
-                <form id="submissionForm" class="space-y-4">
+                <div id="alreadySubmittedMsg" class="hidden bg-cyan-950/60 border border-cyan-500/40 p-4 rounded-xl text-center mb-6">
+                    <p class="text-xs text-cyan-300 font-semibold mb-2">⚠️ You have already submitted from this device.</p>
+                    <button onclick="switchToArena()" class="text-xs font-orbitron bg-cyan-500 text-black font-bold px-4 py-2 rounded-lg hover:bg-cyan-400 transition">
+                        ENTER VIRTUAL ARENA ➔
+                    </button>
+                </div>
+
+                <form id="submissionForm" class="space-y-5">
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Team Name / Participant Name</label>
-                        <input type="text" id="teamName" required placeholder="e.g. Code Warriors" 
-                            class="w-full bg-[#050b18] border border-cyan-500/30 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400 transition">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">Team Name / Participant Name</label>
+                        <input type="text" id="teamName" required placeholder="e.g. Cyber Titans" 
+                            class="w-full bg-[#050b18] border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-400 transition">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">GitHub Repository Link</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">GitHub Repository Link</label>
                         <input type="url" id="githubLink" required placeholder="https://github.com/username/project" 
-                            class="w-full bg-[#050b18] border border-cyan-500/30 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400 transition">
+                            class="w-full bg-[#050b18] border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-400 transition">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Project Description</label>
-                        <textarea id="projectDesc" rows="3" required placeholder="Briefly describe your solution..." 
-                            class="w-full bg-[#050b18] border border-cyan-500/30 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400 transition resize-none"></textarea>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">Project Description</label>
+                        <textarea id="projectDesc" rows="3" required placeholder="Briefly describe your solution architecture..." 
+                            class="w-full bg-[#050b18] border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-400 transition resize-none"></textarea>
                     </div>
                     <button type="submit" id="submitBtn"
-                        class="w-full mt-2 font-orbitron font-bold text-sm tracking-wider py-3 px-6 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-lg shadow-cyan-500/25 transition transform active:scale-95">
-                        SUBMIT PROJECT CODE 🚀
+                        class="w-full font-orbitron font-bold text-sm tracking-widest py-3.5 px-6 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white shadow-xl shadow-cyan-500/25 transition transform active:scale-95">
+                        DEPLOY & ENTER ARENA 🚀
                     </button>
                 </form>
             </div>
-            <div class="mt-6 pt-4 border-t border-cyan-500/20 text-xs text-gray-400 text-center">
-                <p>Synced live globally via Supabase Cloud database!</p>
-            </div>
-        </section>
+        </div>
 
-        <!-- 3D GROUND & LEADERBOARD -->
-        <section class="lg:col-span-8 flex flex-col gap-6">
-            <div class="relative bg-[#0d1633]/90 backdrop-blur-xl rounded-2xl glow-box overflow-hidden h-[380px] flex flex-col">
-                <div class="absolute top-4 left-4 z-10 bg-cyan-950/80 backdrop-blur border border-cyan-500/40 px-3 py-1 rounded-md">
-                    <span class="font-orbitron text-xs text-cyan-300 font-semibold tracking-wider">⚡ VIRTUAL AVATAR ARENA</span>
+        <!-- PAGE 2: 3D VIRTUAL ARENA & FLOATING LEADERBOARD VIEW -->
+        <div id="pageArena" class="hidden w-full flex flex-col gap-6 fade-in">
+            
+            <!-- FLOATING HEADER LEADERBOARD BAR -->
+            <div class="glass-panel p-4 rounded-2xl glow-box flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-3 h-3 bg-cyan-400 rounded-full animate-pulse"></div>
+                    <h3 class="font-orbitron font-bold text-sm text-cyan-300 tracking-wider">LIVE SUBMISSIONS FEED</h3>
+                    <span id="totalSubmissions" class="text-xs bg-cyan-950 text-cyan-300 px-3 py-0.5 rounded-full border border-cyan-500/30 font-mono">0 Teams</span>
+                </div>
+                <!-- Mini Scrollable Horizontal Submissions Stream -->
+                <div id="miniTicker" class="flex items-center gap-3 overflow-x-auto max-w-2xl py-1 text-xs text-gray-300 no-scrollbar">
+                    <span class="text-gray-500 italic">Waiting for incoming deployments...</span>
+                </div>
+            </div>
+
+            <!-- 3D VIRTUAL GROUND CONTAINER -->
+            <div class="relative glass-panel rounded-3xl glow-box overflow-hidden h-[500px] flex flex-col">
+                <div class="absolute top-4 left-4 z-10 glass-panel border border-cyan-500/40 px-4 py-1.5 rounded-xl">
+                    <span class="font-orbitron text-xs text-cyan-300 font-bold tracking-widest">⚡ 3D VIRTUAL GROUND & AVATARS</span>
                 </div>
                 <div id="canvas-container" class="w-full h-full flex-grow cursor-grab active:cursor-grabbing"></div>
-                <div class="absolute bottom-3 right-4 z-10 text-[10px] text-gray-400 bg-black/40 px-2 py-1 rounded">Tip: Drag mouse to rotate view</div>
+                <div class="absolute bottom-4 right-4 z-10 text-[11px] text-gray-300 glass-panel px-3 py-1.5 rounded-lg border border-cyan-500/20">
+                    💡 Tip: Click & drag to rotate 3D view | Scroll to zoom
+                </div>
             </div>
 
-            <div class="bg-[#0d1633]/90 backdrop-blur-xl p-5 rounded-2xl glow-box flex-grow">
-                <div class="flex justify-between items-center mb-4 border-b border-cyan-500/20 pb-2">
-                    <h3 class="font-orbitron font-bold text-sm text-cyan-300">LIVE SUBMISSION LEADERBOARD</h3>
-                    <span id="totalSubmissions" class="text-xs bg-cyan-900/50 text-cyan-300 px-2.5 py-0.5 rounded-full border border-cyan-500/30">0 Submissions</span>
-                </div>
-                <div class="overflow-x-auto max-h-[220px] overflow-y-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="text-[11px] font-orbitron text-cyan-400 border-b border-cyan-500/20 sticky top-0 bg-[#0d1633]">
-                                <th class="py-2 px-3">Rank</th>
-                                <th class="py-2 px-3">Team Name</th>
-                                <th class="py-2 px-3">Timestamp</th>
-                                <th class="py-2 px-3">GitHub Repo</th>
-                            </tr>
-                        </thead>
-                        <tbody id="leaderboardTable" class="text-xs text-gray-300 divide-y divide-cyan-500/10">
-                            <tr><td colspan="4" class="text-center py-6 text-gray-500 italic">Connecting to live database...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
+        </div>
+
     </main>
 
-    <footer class="w-full py-4 text-center text-xs text-gray-400 border-t border-cyan-500/20 bg-[#0a1128]">
+    <!-- FOOTER -->
+    <footer class="w-full py-4 text-center text-xs text-gray-400 border-t border-cyan-500/20 glass-panel">
         <p>Nexora'26 National Level Technical Hackathon • Student Coordinators: Abdul Raheem & Gokul</p>
     </footer>
 
-    <!-- SUPABASE CONNECTION & APP LOGIC -->
+    <!-- LOGIC SCRIPT -->
     <script>
         const SUPABASE_URL = 'https://kdnmpyaiwndcwcgvdkqz.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_qDWJgoi8nFcc53-t5L_gMg_XyxaIC3P';
@@ -131,100 +141,54 @@
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // --- THREE.JS 3D VIRTUAL GROUND ---
-        const container = document.getElementById('canvas-container');
-        const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x050b18, 0.035);
-
-        const camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
-        camera.position.set(0, 8, 14);
-        camera.lookAt(0, 0, 0);
-
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        container.appendChild(renderer.domElement);
-
-        scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-        const pointLight = new THREE.PointLight(0x00f2fe, 2, 50);
-        pointLight.position.set(0, 10, 0);
-        scene.add(pointLight);
-
-        const gridHelper = new THREE.GridHelper(30, 30, 0x00f2fe, 0x1e3a8a);
-        gridHelper.position.y = -1;
-        scene.add(gridHelper);
-
+        let submissions = [];
+        let scene, camera, renderer, avatarGroup;
         let isDragging = false, previousMousePosition = { x: 0, y: 0 }, sceneRotationY = 0;
-        container.addEventListener('mousedown', (e) => { isDragging = true; previousMousePosition = { x: e.clientX, y: e.clientY }; });
-        window.addEventListener('mouseup', () => { isDragging = false; });
-        container.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            sceneRotationY += (e.clientX - previousMousePosition.x) * 0.005;
-            scene.rotation.y = sceneRotationY;
-            previousMousePosition = { x: e.clientX, y: e.clientY };
+
+        // Check if user already submitted on this browser session
+        window.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('nexora_submitted')) {
+                document.getElementById('alreadySubmittedMsg').classList.remove('hidden');
+                document.getElementById('submissionForm').classList.add('opacity-40', 'pointer-events-none');
+            }
+            fetchSubmissions();
         });
 
-        const avatarGroup = new THREE.Group();
-        scene.add(avatarGroup);
-        let submissions = [];
-
-        function createAvatarMesh(index, teamName) {
-            const group = new THREE.Group();
-            const colorHex = index === 0 ? 0xffd700 : (index === 1 ? 0xc0c0c0 : (index === 2 ? 0xcd7f32 : 0x00f2fe));
-            
-            // Avatar Body
-            const body = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.3, 0.4, 1.4, 16),
-                new THREE.MeshStandardMaterial({ color: colorHex, emissive: colorHex, emissiveIntensity: 0.6, roughness: 0.2, metalness: 0.8 })
-            );
-            body.position.y = 0.7;
-            group.add(body);
-
-            // Avatar Head
-            const head = new THREE.Mesh(
-                new THREE.SphereGeometry(0.25, 16, 16),
-                new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: colorHex, emissiveIntensity: 0.4 })
-            );
-            head.position.y = 1.6;
-            group.add(head);
-
-            // Floating Name Label Canvas Sprite above the avatar
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
-            canvas.width = 256;
-            canvas.height = 64;
-            context.fillStyle = 'rgba(10, 17, 40, 0.85)';
-            context.roundRect ? context.roundRect(0, 0, 256, 64, 10) : context.fillRect(0, 0, 256, 64);
-            context.strokeStyle = index === 0 ? '#ffd700' : '#00f2fe';
-            context.lineWidth = 4;
-            context.strokeRect(0, 0, 256, 64);
-            
-            context.font = 'Bold 22px Orbitron, sans-serif';
-            context.fillStyle = '#ffffff';
-            context.textAlign = 'center';
-            context.textBaseline = 'middle';
-            context.fillText(teamName.length > 14 ? teamName.substring(0, 12) + '...' : teamName, 128, 32);
-
-            const texture = new THREE.CanvasTexture(canvas);
-            const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
-            const sprite = new THREE.Sprite(spriteMaterial);
-            sprite.position.set(0, 2.3, 0);
-            sprite.scale.set(1.5, 0.375, 1);
-            group.add(sprite);
-
-            return group;
+        function switchToArena() {
+            document.getElementById('pageSubmission').classList.add('hidden');
+            document.getElementById('pageArena').classList.remove('hidden');
+            if (!scene) initThreeJS();
         }
 
-        function updateAvatarPositions() {
-            avatarGroup.clear();
-            submissions.forEach((sub, idx) => {
-                const avatar = createAvatarMesh(idx, sub.team_name);
-                const angle = idx * 0.8;
-                const radius = 2 + Math.floor(idx / 6) * 2.2;
-                avatar.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
-                avatarGroup.add(avatar);
-            });
-        }
+        // --- FORM SUBMISSION HANDLER ---
+        document.getElementById('submissionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerText = "DEPLOYING...";
+
+            const teamName = document.getElementById('teamName').value.trim();
+            const githubLink = document.getElementById('githubLink').value.trim();
+            const projectDesc = document.getElementById('projectDesc').value.trim();
+            
+            // Format timestamp neatly
+            const now = new Date();
+            const timestampStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+            const { error } = await _supabase.from('submissions').insert([
+                { team_name: teamName, github_link: githubLink, project_desc: projectDesc, timestamp: timestampStr }
+            ]);
+
+            if (error) {
+                alert('Submission failed: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.innerText = "DEPLOY & ENTER ARENA 🚀";
+            } else {
+                localStorage.setItem('nexora_submitted', 'true');
+                switchToArena();
+                fetchSubmissions();
+            }
+        });
 
         // --- FETCH DATA FROM SUPABASE ---
         async function fetchSubmissions() {
@@ -235,8 +199,8 @@
 
             if (!error && data) {
                 submissions = data;
-                renderLeaderboard();
-                updateAvatarPositions();
+                updateTickerAndCount();
+                if (scene) updateAvatarPositions();
             }
         }
 
@@ -245,91 +209,161 @@
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'submissions' }, payload => {
                 submissions.push(payload.new);
                 submissions.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-                renderLeaderboard();
-                updateAvatarPositions();
+                updateTickerAndCount();
+                if (scene) updateAvatarPositions();
             })
             .subscribe();
 
-        // --- FORM SUBMISSION HANDLER ---
-        const form = document.getElementById('submissionForm');
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.innerText = "SUBMITTING...";
-
-            const teamName = document.getElementById('teamName').value.trim();
-            const githubLink = document.getElementById('githubLink').value.trim();
-            const projectDesc = document.getElementById('projectDesc').value.trim();
-            const timestampStr = new Date().toLocaleTimeString();
-
-            const { error } = await _supabase.from('submissions').insert([
-                { team_name: teamName, github_link: githubLink, project_desc: projectDesc, timestamp: timestampStr }
-            ]);
-
-            if (error) {
-                alert('Submission failed: ' + error.message);
-            } else {
-                form.reset();
-                fetchSubmissions(); // Refresh immediately
-            }
-            submitBtn.disabled = false;
-            submitBtn.innerText = "SUBMIT PROJECT CODE 🚀";
-        });
-
-        function renderLeaderboard() {
-            const leaderboardTable = document.getElementById('leaderboardTable');
-            const totalSubmissionsBadge = document.getElementById('totalSubmissions');
-            leaderboardTable.innerHTML = '';
-            totalSubmissionsBadge.innerText = `${submissions.length} Submissions`;
-
+        function updateTickerAndCount() {
+            document.getElementById('totalSubmissions').innerText = `${submissions.length} Teams`;
+            const ticker = document.getElementById('miniTicker');
+            
             if (submissions.length === 0) {
-                leaderboardTable.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-gray-500 italic">No submissions yet. Be the first to deploy!</td></tr>`;
+                ticker.innerHTML = `<span class="text-gray-500 italic">No submissions yet.</span>`;
                 return;
             }
 
-            submissions.forEach((sub, index) => {
-                const row = document.createElement('tr');
-                row.className = "hover:bg-cyan-950/30 transition border-b border-cyan-500/10";
-                
-                let rankBadge = `<span class="font-orbitron font-bold text-cyan-400">#${index + 1}</span>`;
-                if (index === 0) rankBadge = `<span class="px-2 py-0.5 rounded text-[10px] bg-yellow-500/20 text-yellow-300 font-bold border border-yellow-500/40">👑 #1 LEADER</span>`;
-                else if (index === 1) rankBadge = `<span class="px-2 py-0.5 rounded text-[10px] bg-gray-400/20 text-gray-300 font-bold border border-gray-400/40">🥈 #2</span>`;
-                else if (index === 2) rankBadge = `<span class="px-2 py-0.5 rounded text-[10px] bg-amber-600/20 text-amber-400 font-bold border border-amber-600/40">🥉 #3</span>`;
-
-                row.innerHTML = `
-                    <td class="py-2.5 px-3">${rankBadge}</td>
-                    <td class="py-2.5 px-3 font-semibold text-white">${escapeHtml(sub.team_name)}</td>
-                    <td class="py-2.5 px-3 text-cyan-300 font-mono">${escapeHtml(sub.timestamp)}</td>
-                    <td class="py-2.5 px-3"><a href="${escapeHtml(sub.github_link)}" target="_blank" class="text-cyan-400 underline hover:text-cyan-300 text-xs truncate max-w-[150px] inline-block align-bottom">${escapeHtml(sub.github_link)}</a></td>
+            ticker.innerHTML = '';
+            submissions.forEach((sub, idx) => {
+                const badge = document.createElement('div');
+                badge.className = "flex items-center gap-2 bg-[#050b18]/80 border border-cyan-500/30 px-3 py-1.5 rounded-xl shrink-0";
+                badge.innerHTML = `
+                    <span class="text-cyan-400 font-mono font-bold">[${idx + 1}]</span>
+                    <span class="font-semibold text-white">${escapeHtml(sub.team_name)}</span>
+                    <span class="text-gray-400 text-[10px] font-mono">${escapeHtml(sub.timestamp)}</span>
                 `;
-                leaderboardTable.appendChild(row);
+                ticker.appendChild(badge);
             });
         }
+
+        // --- THREE.JS 3D VIRTUAL GROUND SETUP ---
+        function initThreeJS() {
+            const container = document.getElementById('canvas-container');
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x030712, 0.03);
+
+            camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(0, 9, 16);
+            camera.lookAt(0, 0, 0);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+
+            scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+            const pointLight = new THREE.PointLight(0x00f2fe, 3, 60);
+            pointLight.position.set(0, 12, 0);
+            scene.add(pointLight);
+
+            // Ground Grid
+            const gridHelper = new THREE.GridHelper(40, 40, 0x00f2fe, 0x1e3a8a);
+            gridHelper.position.y = -1;
+            scene.add(gridHelper);
+
+            // Mouse Controls for 3D View
+            container.addEventListener('mousedown', (e) => { isDragging = true; previousMousePosition = { x: e.clientX, y: e.clientY }; });
+            window.addEventListener('mouseup', () => { isDragging = false; });
+            container.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                sceneRotationY += (e.clientX - previousMousePosition.x) * 0.005;
+                scene.rotation.y = sceneRotationY;
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            avatarGroup = new THREE.Group();
+            scene.add(avatarGroup);
+            updateAvatarPositions();
+            animate();
+        }
+
+        function createAvatarMesh(teamName, timestamp) {
+            const group = new THREE.Group();
+            
+            // Glowing Futuristic Avatar Body
+            const body = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.35, 0.45, 1.5, 16),
+                new THREE.MeshStandardMaterial({ color: 0x00f2fe, emissive: 0x00f2fe, emissiveIntensity: 0.5, roughness: 0.2, metalness: 0.8 })
+            );
+            body.position.y = 0.75;
+            group.add(body);
+
+            // Glowing Head Sphere
+            const head = new THREE.Mesh(
+                new THREE.SphereGeometry(0.28, 16, 16),
+                new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0x4facfe, emissiveIntensity: 0.6 })
+            );
+            head.position.y = 1.7;
+            group.add(head);
+
+            // Floating Data Badge (Name & Timestamp) Sprite
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = 320;
+            canvas.height = 90;
+            
+            context.fillStyle = 'rgba(10, 17, 40, 0.9)';
+            context.fillRect(0, 0, 320, 90);
+            context.strokeStyle = '#00f2fe';
+            context.lineWidth = 4;
+            context.strokeRect(0, 0, 320, 90);
+
+            context.font = 'Bold 22px Orbitron, sans-serif';
+            context.fillStyle = '#00f2fe';
+            context.textAlign = 'center';
+            context.fillText(teamName.length > 16 ? teamName.substring(0, 14) + '...' : teamName, 160, 35);
+
+            context.font = '16px Inter, sans-serif';
+            context.fillStyle = '#ffffff';
+            context.fillText(`⏱️ ${timestamp}`, 160, 70);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
+            const sprite = new THREE.Sprite(spriteMaterial);
+            sprite.position.set(0, 2.6, 0);
+            sprite.scale.set(2.2, 0.62, 1);
+            group.add(sprite);
+
+            return group;
+        }
+
+        function updateAvatarPositions() {
+            if (!avatarGroup) return;
+            avatarGroup.clear();
+            submissions.forEach((sub, idx) => {
+                const avatar = createAvatarMesh(sub.team_name, sub.timestamp);
+                const angle = idx * 0.75;
+                const radius = 2.5 + Math.floor(idx / 6) * 2.5;
+                avatar.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
+                avatarGroup.add(avatar);
+            });
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (avatarGroup) {
+                avatarGroup.children.forEach((avatar, i) => {
+                    avatar.position.y = Math.sin(Date.now() * 0.003 + i) * 0.15;
+                    avatar.rotation.y += 0.008;
+                });
+            }
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            const container = document.getElementById('canvas-container');
+            if (container && renderer && camera) {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            }
+        });
 
         function escapeHtml(str) {
             return str ? str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") : '';
         }
-
-        // Initial fetch on load
-        fetchSubmissions();
-
-        // Animation Loop
-        function animate() {
-            requestAnimationFrame(animate);
-            avatarGroup.children.forEach((avatar, i) => {
-                avatar.position.y = Math.sin(Date.now() * 0.003 + i) * 0.15;
-                avatar.rotation.y += 0.01;
-            });
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        window.addEventListener('resize', () => {
-            camera.aspect = container.clientWidth / container.clientHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(container.clientWidth, container.clientHeight);
-        });
     </script>
 </body>
 </html>
