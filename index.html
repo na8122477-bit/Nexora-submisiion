@@ -18,22 +18,22 @@
         }
     </script>
     <style>
-        body { background-color: #030712; color: #ffffff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        .glow-text { text-shadow: 0 0 20px rgba(0, 242, 254, 0.7); }
-        .glow-box { box-shadow: 0 0 30px rgba(0, 242, 254, 0.15); border: 1px solid rgba(0, 242, 254, 0.3); }
-        .glass-panel { background: rgba(13, 22, 51, 0.85); backdrop-filter: blur(16px); }
+        body { background-color: #02040a; color: #ffffff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .glow-text { text-shadow: 0 0 25px rgba(0, 242, 254, 0.8); }
+        .glow-box { box-shadow: 0 0 35px rgba(0, 242, 254, 0.2); border: 1px solid rgba(0, 242, 254, 0.4); }
+        .glass-panel { background: rgba(8, 15, 35, 0.88); backdrop-filter: blur(20px); }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #030712; }
+        ::-webkit-scrollbar-track { background: #02040a; }
         ::-webkit-scrollbar-thumb { background: #00f2fe; border-radius: 3px; }
         .fade-in { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes floatUp { 
             0% { transform: translateY(0px) scale(0.8); opacity: 1; } 
-            100% { transform: translateY(-80px) scale(1.5); opacity: 0; } 
+            100% { transform: translateY(-90px) scale(1.6); opacity: 0; } 
         }
         .floating-emoji {
             position: absolute;
-            font-size: 32px;
+            font-size: 36px;
             pointer-events: none;
             animation: floatUp 1.5s ease-out forwards;
             z-index: 50;
@@ -43,20 +43,20 @@
 <body class="min-h-screen flex flex-col justify-between">
 
     <!-- HEADER -->
-    <header class="w-full glass-panel border-b border-cyan-500/20 py-4 px-6 sticky top-0 z-50">
+    <header class="w-full glass-panel border-b border-cyan-500/30 py-4 px-6 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
             <div class="text-center md:text-left">
                 <p class="text-xs tracking-wider text-cyan-400 font-semibold uppercase">C. Abdul Hakeem College of Engineering & Technology</p>
                 <p class="text-[10px] text-gray-400">Department of Information Technology & Info Club Present</p>
             </div>
             <div class="text-center">
-                <h1 class="font-orbitron font-extrabold text-2xl md:text-3xl bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-400 bg-clip-text text-transparent glow-text">
+                <h1 class="font-orbitron font-extrabold text-2xl md:text-3xl bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-500 bg-clip-text text-transparent glow-text">
                     NEXORA'26
                 </h1>
                 <p class="text-[11px] text-cyan-200 tracking-widest uppercase">National Level Technical Hackathon</p>
             </div>
             <div class="text-center md:text-right text-xs text-gray-300">
-                <span class="inline-block bg-cyan-950/80 border border-cyan-500/40 px-3 py-1 rounded-full text-cyan-300 font-mono">
+                <span class="inline-block bg-cyan-950/90 border border-cyan-500/50 px-3 py-1 rounded-full text-cyan-300 font-mono shadow-lg shadow-cyan-500/20">
                     📅 13-09-2026 | 📍 PG Seminar Hall
                 </span>
             </div>
@@ -69,39 +69,51 @@
         <!-- PAGE 1: SUBMISSION FORM -->
         <div id="pageSubmission" class="max-w-xl mx-auto w-full fade-in py-8">
             <div class="glass-panel p-8 rounded-3xl glow-box">
-                <div class="flex items-center gap-3 mb-6 border-b border-cyan-500/20 pb-4">
+                <div class="flex items-center gap-3 mb-6 border-b border-cyan-500/30 pb-4">
                     <div class="w-3.5 h-3.5 bg-cyan-400 rounded-full animate-ping"></div>
                     <div>
                         <h2 class="font-orbitron font-bold text-xl text-cyan-300">PROJECT SUBMISSION PORTAL</h2>
-                        <p class="text-xs text-gray-400">Submit your GitHub repository to enter the virtual arena.</p>
+                        <p class="text-xs text-gray-400">Submit your solution details to enter the virtual arena.</p>
                     </div>
                 </div>
 
-                <div id="alreadySubmittedMsg" class="hidden bg-cyan-950/60 border border-cyan-500/40 p-4 rounded-xl text-center mb-6">
-                    <p class="text-xs text-cyan-300 font-semibold mb-2">⚠️ You have already submitted from this device.</p>
-                    <button onclick="switchToArena()" class="text-xs font-orbitron bg-cyan-500 text-black font-bold px-4 py-2 rounded-lg hover:bg-cyan-400 transition">
+                <div id="alreadySubmittedMsg" class="hidden bg-cyan-950/80 border border-cyan-500/50 p-5 rounded-2xl text-center mb-6 shadow-xl">
+                    <p class="text-xs text-cyan-300 font-semibold mb-3">✨ Welcome back! Your project is deployed in the live arena.</p>
+                    <button onclick="switchToArena()" class="text-xs font-orbitron bg-gradient-to-r from-cyan-400 to-blue-500 text-black font-bold px-6 py-2.5 rounded-xl hover:opacity-90 transition shadow-lg shadow-cyan-400/30">
                         ENTER VIRTUAL ARENA ➔
                     </button>
                 </div>
 
-                <form id="submissionForm" class="space-y-5">
+                <form id="submissionForm" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">Team Name / Participant Name</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Team Name / Participant Name</label>
                         <input type="text" id="teamName" required placeholder="e.g. Cyber Titans" 
-                            class="w-full bg-[#050b18] border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-400 transition">
+                            class="w-full bg-[#02040a] border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-400 transition">
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Problem Statement</label>
+                            <input type="text" id="probTitle" required placeholder="e.g. Smart Traffic AI" 
+                                class="w-full bg-[#02040a] border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-400 transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Statement No.</label>
+                            <input type="text" id="probNo" required placeholder="e.g. PS-104" 
+                                class="w-full bg-[#02040a] border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-400 transition">
+                        </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">GitHub Repository Link</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">GitHub Repository Link</label>
                         <input type="url" id="githubLink" required placeholder="https://github.com/username/project" 
-                            class="w-full bg-[#050b18] border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-400 transition">
+                            class="w-full bg-[#02040a] border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-400 transition">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">Project Description</label>
-                        <textarea id="projectDesc" rows="3" required placeholder="Briefly describe your solution architecture..." 
-                            class="w-full bg-[#050b18] border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-400 transition resize-none"></textarea>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Project Description</label>
+                        <textarea id="projectDesc" rows="2" required placeholder="Briefly describe your solution architecture..." 
+                            class="w-full bg-[#02040a] border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-400 transition resize-none"></textarea>
                     </div>
                     <button type="submit" id="submitBtn"
-                        class="w-full font-orbitron font-bold text-sm tracking-widest py-3.5 px-6 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white shadow-xl shadow-cyan-500/25 transition transform active:scale-95">
+                        class="w-full font-orbitron font-bold text-sm tracking-widest py-3.5 px-6 rounded-xl bg-gradient-to-r from-cyan-400 via-blue-600 to-indigo-600 hover:opacity-90 text-white shadow-xl shadow-cyan-500/30 transition transform active:scale-95">
                         DEPLOY & ENTER ARENA 🚀
                     </button>
                 </form>
@@ -113,12 +125,12 @@
             
             <!-- BOXY STRUCTURED LEADERBOARD BAR -->
             <div class="glass-panel p-5 rounded-2xl glow-box">
-                <div class="flex justify-between items-center mb-3 border-b border-cyan-500/20 pb-2">
+                <div class="flex justify-between items-center mb-3 border-b border-cyan-500/30 pb-2">
                     <div class="flex items-center gap-2">
                         <div class="w-3 h-3 bg-cyan-400 rounded-full animate-pulse"></div>
-                        <h3 class="font-orbitron font-bold text-sm text-cyan-300 tracking-wider">LIVE SUBMISSIONS FEED</h3>
+                        <h3 class="font-orbitron font-bold text-sm text-cyan-300 tracking-wider">LIVE SUBMISSIONS FEED & REACTION CONTROLS</h3>
                     </div>
-                    <span id="totalSubmissions" class="text-xs bg-cyan-950 text-cyan-300 px-3 py-1 rounded-full border border-cyan-500/30 font-mono">0 Submissions</span>
+                    <span id="totalSubmissions" class="text-xs bg-cyan-950 text-cyan-300 px-3 py-1 rounded-full border border-cyan-500/50 font-mono">0 Submissions</span>
                 </div>
                 <!-- Boxy Grid Container for Submissions -->
                 <div id="boxyLeaderboard" class="flex gap-4 overflow-x-auto py-2">
@@ -127,17 +139,17 @@
             </div>
 
             <!-- 3D VIRTUAL GROUND CONTAINER -->
-            <div class="relative glass-panel rounded-3xl glow-box overflow-hidden h-[520px] flex flex-col">
-                <div class="absolute top-4 left-4 z-10 glass-panel border border-cyan-500/40 px-4 py-1.5 rounded-xl flex items-center gap-3">
-                    <span class="font-orbitron text-xs text-cyan-300 font-bold tracking-widest">⚡ 3D AVATAR ARENA</span>
-                    <div class="flex gap-1">
-                        <button onclick="zoomCamera(1)" class="bg-cyan-950 text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30 text-xs font-bold hover:bg-cyan-900">+</button>
-                        <button onclick="zoomCamera(-1)" class="bg-cyan-950 text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30 text-xs font-bold hover:bg-cyan-900">-</button>
+            <div class="relative glass-panel rounded-3xl glow-box overflow-hidden h-[540px] flex flex-col">
+                <div class="absolute top-4 left-4 z-10 glass-panel border border-cyan-500/50 px-4 py-2 rounded-xl flex items-center gap-4 shadow-lg">
+                    <span class="font-orbitron text-xs text-cyan-300 font-bold tracking-widest">⚡ AAA REALISTIC 3D ARENA</span>
+                    <div class="flex gap-1.5">
+                        <button onclick="zoomCamera(1)" class="bg-cyan-950 text-cyan-300 px-2.5 py-1 rounded-lg border border-cyan-500/40 text-xs font-bold hover:bg-cyan-900 transition">Zoom +</button>
+                        <button onclick="zoomCamera(-1)" class="bg-cyan-950 text-cyan-300 px-2.5 py-1 rounded-lg border border-cyan-500/40 text-xs font-bold hover:bg-cyan-900 transition">Zoom -</button>
                     </div>
                 </div>
                 <div id="canvas-container" class="w-full h-full flex-grow cursor-grab active:cursor-grabbing"></div>
                 <div id="emoji-overlay-layer" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
-                <div class="absolute bottom-4 right-4 z-10 text-[11px] text-gray-300 glass-panel px-3 py-1.5 rounded-lg border border-cyan-500/20">
+                <div class="absolute bottom-4 right-4 z-10 text-[11px] text-cyan-200 glass-panel px-3 py-1.5 rounded-xl border border-cyan-500/30 shadow-lg">
                     💡 Tip: Click & drag to rotate view | Scroll to zoom
                 </div>
             </div>
@@ -166,7 +178,7 @@
         const possibleFaces = ['😎', '🤖', '🚀', '🔥', '💻', '⚡', '👽', '👾'];
 
         window.addEventListener('DOMContentLoaded', () => {
-            if (localStorage.getItem('nexora_submitted')) {
+            if (localStorage.getItem('nexora_submitted') || myTeamId) {
                 document.getElementById('alreadySubmittedMsg').classList.remove('hidden');
                 document.getElementById('submissionForm').classList.add('opacity-40', 'pointer-events-none');
             }
@@ -188,6 +200,8 @@
             submitBtn.innerText = "DEPLOYING...";
 
             const teamName = document.getElementById('teamName').value.trim();
+            const probTitle = document.getElementById('probTitle').value.trim();
+            const probNo = document.getElementById('probNo').value.trim();
             const githubLink = document.getElementById('githubLink').value.trim();
             const projectDesc = document.getElementById('projectDesc').value.trim();
             
@@ -195,7 +209,7 @@
             const timestampStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
             const { data, error } = await _supabase.from('submissions').insert([
-                { team_name: teamName, github_link: githubLink, project_desc: projectDesc, timestamp: timestampStr }
+                { team_name: teamName, github_link: githubLink, project_desc: projectDesc, timestamp: timestampStr, prob_title: probTitle, prob_no: probNo }
             ]).select();
 
             if (error) {
@@ -249,9 +263,8 @@
         }
 
         async function sendReaction(teamId, emoji) {
-            // Only allow user to react if it's their own submission card
             if (teamId !== myTeamId) {
-                alert("You can only send emoji reactions from your own team submission card!");
+                alert("You can only control emoji reactions from your own team card!");
                 return;
             }
             triggerFloatingEmoji(teamId, emoji);
@@ -301,32 +314,36 @@
             submissions.forEach((sub, idx) => {
                 const isMyCard = (sub.id === myTeamId);
                 const card = document.createElement('div');
-                card.className = `bg-[#050b18] border ${isMyCard ? 'border-cyan-400 shadow-lg shadow-cyan-500/20' : 'border-cyan-500/30'} p-3 rounded-xl min-w-[240px] shrink-0 glow-box flex flex-col justify-between`;
+                card.className = `bg-[#02040a] border ${isMyCard ? 'border-cyan-400 shadow-xl shadow-cyan-500/30 ring-1 ring-cyan-400' : 'border-cyan-500/30'} p-3.5 rounded-2xl min-w-[260px] shrink-0 glow-box flex flex-col justify-between`;
                 
                 let reactionSection = '';
                 if (isMyCard) {
                     reactionSection = `
-                        <div class="bg-cyan-950/60 border border-cyan-500/30 px-2 py-1.5 rounded-lg my-2 text-center">
-                            <p class="text-[9px] text-cyan-300 font-bold mb-1 uppercase">Your Reaction Control Panel</p>
+                        <div class="bg-cyan-950/70 border border-cyan-500/40 px-3 py-2 rounded-xl my-2 text-center shadow-md">
+                            <p class="text-[9px] text-cyan-300 font-bold mb-1.5 uppercase tracking-wider">Your Emoji Control Panel ⚡</p>
                             <div class="flex items-center justify-between px-2">
-                                <button onclick="sendReaction('${sub.id}', '🔥')" class="hover:scale-125 transition text-sm">🔥</button>
-                                <button onclick="sendReaction('${sub.id}', '🚀')" class="hover:scale-125 transition text-sm">🚀</button>
-                                <button onclick="sendReaction('${sub.id}', '💡')" class="hover:scale-125 transition text-sm">💡</button>
-                                <button onclick="sendReaction('${sub.id}', '👏')" class="hover:scale-125 transition text-sm">👏</button>
-                                <button onclick="sendReaction('${sub.id}', '❤️')" class="hover:scale-125 transition text-sm">❤️</button>
+                                <button onclick="sendReaction('${sub.id}', '🔥')" class="hover:scale-125 transition text-base">🔥</button>
+                                <button onclick="sendReaction('${sub.id}', '🚀')" class="hover:scale-125 transition text-base">🚀</button>
+                                <button onclick="sendReaction('${sub.id}', '💡')" class="hover:scale-125 transition text-base">💡</button>
+                                <button onclick="sendReaction('${sub.id}', '👏')" class="hover:scale-125 transition text-base">👏</button>
+                                <button onclick="sendReaction('${sub.id}', '❤️')" class="hover:scale-125 transition text-base">❤️</button>
                             </div>
                         </div>`;
                 } else {
-                    reactionSection = `<div class="text-[10px] text-gray-500 italic text-center py-2 my-2 bg-black/20 rounded-lg">🔒 Reactions locked to your own card</div>`;
+                    reactionSection = `<div class="text-[10px] text-gray-400 italic text-center py-2.5 my-2 bg-black/30 rounded-xl border border-gray-800">🔒 Reactions locked to owner card</div>`;
                 }
 
                 card.innerHTML = `
                     <div>
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-[10px] text-cyan-400 font-mono font-bold uppercase">Submission #${idx + 1} ${isMyCard ? '(YOU)' : ''}</span>
+                        <div class="flex justify-between items-center mb-1.5">
+                            <span class="text-[10px] text-cyan-400 font-mono font-bold uppercase">#${idx + 1} ${isMyCard ? '★ YOUR TEAM' : ''}</span>
                             <span class="text-[10px] text-gray-400 font-mono">${escapeHtml(sub.timestamp)}</span>
                         </div>
                         <h4 class="font-orbitron font-bold text-sm text-white truncate">${escapeHtml(sub.team_name)}</h4>
+                        <div class="flex items-center gap-2 mt-1 mb-1">
+                            <span class="bg-cyan-950 text-cyan-300 border border-cyan-500/30 text-[10px] px-2 py-0.5 rounded font-mono">${escapeHtml(sub.prob_no || 'PS-00')}</span>
+                            <span class="text-xs text-gray-300 truncate">${escapeHtml(sub.prob_title || 'General')}</span>
+                        </div>
                         <p class="text-[11px] text-gray-400 truncate mt-1">${escapeHtml(sub.project_desc || 'No description')}</p>
                     </div>
                     <div>
@@ -340,29 +357,47 @@
             });
         }
 
-        // --- THREE.JS 3D VIRTUAL GROUND & AVATARS ---
+        // --- THREE.JS HIGH-END 3D ARENA & AVATARS ---
         function initThreeJS() {
             const container = document.getElementById('canvas-container');
             scene = new THREE.Scene();
-            scene.fog = new THREE.FogExp2(0x030712, 0.025);
+            scene.fog = new THREE.FogExp2(0x02040a, 0.02);
 
             camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
-            camera.position.set(0, 8, 15);
+            camera.position.set(0, 8, 16);
             camera.lookAt(0, 0, 0);
 
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(container.clientWidth, container.clientHeight);
             renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             container.appendChild(renderer.domElement);
 
-            scene.add(new THREE.AmbientLight(0xffffff, 0.9));
-            const pointLight = new THREE.PointLight(0x00f2fe, 3, 60);
-            pointLight.position.set(0, 12, 0);
-            scene.add(pointLight);
+            // Lighting setup for realistic cyberpunk shine
+            scene.add(new THREE.AmbientLight(0x00f2fe, 0.6));
+            
+            const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+            dirLight.position.set(10, 20, 10);
+            dirLight.castShadow = true;
+            scene.add(dirLight);
 
-            const gridHelper = new THREE.GridHelper(50, 50, 0x00f2fe, 0x1e3a8a);
+            const neonPoint = new THREE.PointLight(0x00f2fe, 3, 50);
+            neonPoint.position.set(0, 12, 0);
+            scene.add(neonPoint);
+
+            // High-End Cyber Grid Ground
+            const gridHelper = new THREE.GridHelper(60, 60, 0x00f2fe, 0x1e3a8a);
             gridHelper.position.y = -1;
             scene.add(gridHelper);
+
+            // Circular Neon Arena Ring Floor
+            const ringGeo = new THREE.RingGeometry(1, 24, 32);
+            const ringMat = new THREE.MeshStandardMaterial({ color: 0x0a192f, side: THREE.DoubleSide, roughness: 0.2, metalness: 0.8 });
+            const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+            ringMesh.rotation.x = Math.PI / 2;
+            ringMesh.position.y = -0.99;
+            scene.add(ringMesh);
 
             container.addEventListener('mousedown', (e) => { isDragging = true; previousMousePosition = { x: e.clientX, y: e.clientY }; });
             window.addEventListener('mouseup', () => { isDragging = false; });
@@ -376,7 +411,7 @@
             container.addEventListener('wheel', (e) => {
                 e.preventDefault();
                 camera.position.z += e.deltaY * 0.01;
-                camera.position.z = Math.clamp ? Math.clamp(camera.position.z, 5, 30) : Math.max(5, Math.min(30, camera.position.z));
+                camera.position.z = Math.max(5, Math.min(30, camera.position.z));
             }, { passive: false });
 
             avatarGroup = new THREE.Group();
@@ -395,32 +430,33 @@
             const group = new THREE.Group();
             group.userData = { teamId: teamId };
 
+            const isMine = (teamId === myTeamId);
             const cyberMat = new THREE.MeshStandardMaterial({ 
-                color: 0x00f2fe, 
-                emissive: 0x0055ff, 
-                emissiveIntensity: 0.4, 
-                roughness: 0.3, 
-                metalness: 0.8 
+                color: isMine ? 0xffd700 : 0x00f2fe, 
+                emissive: isMine ? 0xffaa00 : 0x0055ff, 
+                emissiveIntensity: 0.5, 
+                roughness: 0.2, 
+                metalness: 0.9 
             });
 
             // Torso
-            const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.2, 0.9, 12), cyberMat);
+            const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.2, 0.9, 16), cyberMat);
             torso.position.y = 0.8;
             group.add(torso);
 
-            // Head
-            const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), cyberMat);
-            head.position.y = 1.5;
+            // Head Sphere
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 16), cyberMat);
+            head.position.y = 1.55;
             group.add(head);
 
-            // Random Emoji Face Canvas on Head
+            // Emoji Face on Head
             const faceCanvas = document.createElement('canvas');
             const faceCtx = faceCanvas.getContext('2d');
             faceCanvas.width = 128;
             faceCanvas.height = 128;
-            faceCtx.fillStyle = '#0a1128';
+            faceCtx.fillStyle = '#080f23';
             faceCtx.fillRect(0, 0, 128, 128);
-            faceCtx.font = '70px sans-serif';
+            faceCtx.font = '72px sans-serif';
             faceCtx.textAlign = 'center';
             faceCtx.textBaseline = 'middle';
             const randomEmojiFace = possibleFaces[index % possibleFaces.length];
@@ -428,24 +464,24 @@
 
             const faceTexture = new THREE.CanvasTexture(faceCanvas);
             const faceMat = new THREE.MeshBasicMaterial({ map: faceTexture });
-            const faceMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.25, 0.25), faceMat);
-            faceMesh.position.set(0, 1.5, 0.21);
+            const faceMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.26, 0.26), faceMat);
+            faceMesh.position.set(0, 1.55, 0.23);
             group.add(faceMesh);
 
             // Arms
-            const armGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.7, 8);
+            const armGeo = new THREE.CylinderGeometry(0.07, 0.07, 0.7, 8);
             const leftArm = new THREE.Mesh(armGeo, cyberMat);
             leftArm.position.set(-0.35, 0.85, 0);
-            leftArm.rotation.z = 0.2;
+            leftArm.rotation.z = 0.25;
             group.add(leftArm);
 
             const rightArm = new THREE.Mesh(armGeo, cyberMat);
             rightArm.position.set(0.35, 0.85, 0);
-            rightArm.rotation.z = -0.2;
+            rightArm.rotation.z = -0.25;
             group.add(rightArm);
 
             // Legs
-            const legGeo = new THREE.CylinderGeometry(0.09, 0.08, 0.8, 8);
+            const legGeo = new THREE.CylinderGeometry(0.08, 0.07, 0.8, 8);
             const leftLeg = new THREE.Mesh(legGeo, cyberMat);
             leftLeg.position.set(-0.15, 0.2, 0);
             group.add(leftLeg);
@@ -457,29 +493,29 @@
             // Floating Name & Timestamp Board
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
-            canvas.width = 320;
-            canvas.height = 90;
+            canvas.width = 340;
+            canvas.height = 100;
             
-            context.fillStyle = 'rgba(10, 17, 40, 0.95)';
-            context.fillRect(0, 0, 320, 90);
-            context.strokeStyle = (teamId === myTeamId) ? '#ffd700' : '#00f2fe';
+            context.fillStyle = 'rgba(8, 15, 35, 0.95)';
+            context.fillRect(0, 0, 340, 100);
+            context.strokeStyle = isMine ? '#ffd700' : '#00f2fe';
             context.lineWidth = 4;
-            context.strokeRect(0, 0, 320, 90);
+            context.strokeRect(0, 0, 340, 100);
 
             context.font = 'Bold 22px Orbitron, sans-serif';
-            context.fillStyle = (teamId === myTeamId) ? '#ffd700' : '#00f2fe';
+            context.fillStyle = isMine ? '#ffd700' : '#00f2fe';
             context.textAlign = 'center';
-            context.fillText(teamName.length > 16 ? teamName.substring(0, 14) + '...' : teamName, 160, 35);
+            context.fillText(teamName.length > 16 ? teamName.substring(0, 14) + '...' : teamName, 170, 35);
 
-            context.font = '15px Inter, sans-serif';
-            context.fillStyle = '#ffffff';
-            context.fillText(`⏱️ ${timestamp}`, 160, 70);
+            context.font = '14px Inter, sans-serif';
+            context.fillStyle = '#cbd5e1';
+            context.fillText(`⏱️ ${timestamp}`, 170, 75);
 
             const texture = new THREE.CanvasTexture(canvas);
             const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
             const sprite = new THREE.Sprite(spriteMaterial);
-            sprite.position.set(0, 2.3, 0);
-            sprite.scale.set(2.0, 0.56, 1);
+            sprite.position.set(0, 2.4, 0);
+            sprite.scale.set(2.2, 0.65, 1);
             group.add(sprite);
 
             return group;
@@ -490,8 +526,8 @@
             avatarGroup.clear();
             submissions.forEach((sub, idx) => {
                 const avatar = createRealisticAvatar(sub.team_name, sub.timestamp, sub.id, idx);
-                const angle = idx * 0.8;
-                const radius = 2.5 + Math.floor(idx / 6) * 2.5;
+                const angle = idx * 0.75;
+                const radius = 2.8 + Math.floor(idx / 6) * 2.8;
                 avatar.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
                 avatarGroup.add(avatar);
             });
