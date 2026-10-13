@@ -21,7 +21,7 @@
         body { background-color: #02040a; color: #ffffff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         .glow-text { text-shadow: 0 0 25px rgba(0, 242, 254, 0.8); }
         .glow-box { box-shadow: 0 0 35px rgba(0, 242, 254, 0.2); border: 1px solid rgba(0, 242, 254, 0.4); }
-        .glass-panel { background: rgba(8, 15, 35, 0.88); backdrop-filter: blur(20px); }
+        .glass-panel { background: rgba(8, 15, 35, 0.9); backdrop-filter: blur(20px); }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #02040a; }
         ::-webkit-scrollbar-thumb { background: #00f2fe; border-radius: 3px; }
@@ -38,12 +38,30 @@
             animation: floatUp 1.5s ease-out forwards;
             z-index: 50;
         }
+        @keyframes celebratePulse {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .celebrate-card { animation: celebratePulse 0.5s ease-out forwards; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
 
+    <!-- SUCCESS CELEBRATION MODAL OVERLAY -->
+    <div id="successModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center hidden">
+        <div class="celebrate-card glass-panel p-8 rounded-3xl glow-box max-w-md w-full text-center border border-cyan-400">
+            <div class="text-6xl mb-4">🚀✨</div>
+            <h3 class="font-orbitron font-extrabold text-2xl text-cyan-300 mb-2">DEPLOYMENT SUCCESSFUL!</h3>
+            <p class="text-xs text-gray-300 mb-6">Your project has been successfully synced to the global cloud database and instantiated in the 3D Hero Arena.</p>
+            <button onclick="closeSuccessModal()" class="w-full font-orbitron font-bold text-sm py-3 px-6 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-600 text-black hover:opacity-95 transition shadow-lg shadow-cyan-400/40">
+                ENTER ARENA NOW ➔
+            </button>
+        </div>
+    </div>
+
     <!-- HEADER -->
-    <header class="w-full glass-panel border-b border-cyan-500/30 py-4 px-6 sticky top-0 z-50">
+    <header class="w-full glass-panel border-b border-cyan-500/30 py-4 px-6 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
             <div class="text-center md:text-left">
                 <p class="text-xs tracking-wider text-cyan-400 font-semibold uppercase">C. Abdul Hakeem College of Engineering & Technology</p>
@@ -78,7 +96,7 @@
                 </div>
 
                 <div id="alreadySubmittedMsg" class="hidden bg-cyan-950/80 border border-cyan-500/50 p-5 rounded-2xl text-center mb-6 shadow-xl">
-                    <p class="text-xs text-cyan-300 font-semibold mb-3">✨ Welcome back! Your project is deployed in the live arena.</p>
+                    <p class="text-xs text-cyan-300 font-semibold mb-3">✨ Welcome back! Your hero avatar is active in the arena.</p>
                     <button onclick="switchToArena()" class="text-xs font-orbitron bg-gradient-to-r from-cyan-400 to-blue-500 text-black font-bold px-6 py-2.5 rounded-xl hover:opacity-90 transition shadow-lg shadow-cyan-400/30">
                         ENTER VIRTUAL ARENA ➔
                     </button>
@@ -120,20 +138,23 @@
             </div>
         </div>
 
-        <!-- PAGE 2: 3D VIRTUAL ARENA & BOXY LEADERBOARD -->
+        <!-- PAGE 2: 3D VIRTUAL ARENA & FLOATING LEADERBOARD -->
         <div id="pageArena" class="hidden w-full flex flex-col gap-6 fade-in">
             
-            <!-- BOXY STRUCTURED LEADERBOARD BAR -->
-            <div class="glass-panel p-5 rounded-2xl glow-box">
-                <div class="flex justify-between items-center mb-3 border-b border-cyan-500/30 pb-2">
+            <!-- FLOATING LEADERBOARD BAR WITH MAXIMIZE/MINIMIZE -->
+            <div id="leaderboardWrapper" class="glass-panel p-4 rounded-2xl glow-box transition-all duration-300">
+                <div class="flex justify-between items-center border-b border-cyan-500/30 pb-2">
                     <div class="flex items-center gap-2">
                         <div class="w-3 h-3 bg-cyan-400 rounded-full animate-pulse"></div>
                         <h3 class="font-orbitron font-bold text-sm text-cyan-300 tracking-wider">LIVE SUBMISSIONS FEED & REACTION CONTROLS</h3>
                     </div>
-                    <span id="totalSubmissions" class="text-xs bg-cyan-950 text-cyan-300 px-3 py-1 rounded-full border border-cyan-500/50 font-mono">0 Submissions</span>
+                    <div class="flex items-center gap-3">
+                        <span id="totalSubmissions" class="text-xs bg-cyan-950 text-cyan-300 px-3 py-1 rounded-full border border-cyan-500/50 font-mono">0 Submissions</span>
+                        <button onclick="toggleMaximizeLeaderboard()" id="maxBtn" class="text-xs bg-cyan-950 text-cyan-400 px-3 py-1 rounded-lg border border-cyan-500/40 font-bold hover:bg-cyan-900 transition">⤢ Maximize</button>
+                    </div>
                 </div>
                 <!-- Boxy Grid Container for Submissions -->
-                <div id="boxyLeaderboard" class="flex gap-4 overflow-x-auto py-2">
+                <div id="boxyLeaderboard" class="flex gap-4 overflow-x-auto py-3 transition-all duration-300 max-h-[220px]">
                     <span class="text-xs text-gray-500 italic">Loading active submissions...</span>
                 </div>
             </div>
@@ -141,7 +162,7 @@
             <!-- 3D VIRTUAL GROUND CONTAINER -->
             <div class="relative glass-panel rounded-3xl glow-box overflow-hidden h-[540px] flex flex-col">
                 <div class="absolute top-4 left-4 z-10 glass-panel border border-cyan-500/50 px-4 py-2 rounded-xl flex items-center gap-4 shadow-lg">
-                    <span class="font-orbitron text-xs text-cyan-300 font-bold tracking-widest">⚡ AAA REALISTIC 3D ARENA</span>
+                    <span class="font-orbitron text-xs text-cyan-300 font-bold tracking-widest">⚡ MARVEL HERO 3D ARENA</span>
                     <div class="flex gap-1.5">
                         <button onclick="zoomCamera(1)" class="bg-cyan-950 text-cyan-300 px-2.5 py-1 rounded-lg border border-cyan-500/40 text-xs font-bold hover:bg-cyan-900 transition">Zoom +</button>
                         <button onclick="zoomCamera(-1)" class="bg-cyan-950 text-cyan-300 px-2.5 py-1 rounded-lg border border-cyan-500/40 text-xs font-bold hover:bg-cyan-900 transition">Zoom -</button>
@@ -175,6 +196,7 @@
         let scene, camera, renderer, avatarGroup;
         let isDragging = false, previousMousePosition = { x: 0, y: 0 }, sceneRotationY = 0;
         let myTeamId = localStorage.getItem('nexora_my_team_id') || null;
+        let isMaximized = false;
         const possibleFaces = ['😎', '🤖', '🚀', '🔥', '💻', '⚡', '👽', '👾'];
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -190,6 +212,28 @@
             document.getElementById('pageSubmission').classList.add('hidden');
             document.getElementById('pageArena').classList.remove('hidden');
             if (!scene) initThreeJS();
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.add('hidden');
+            switchToArena();
+        }
+
+        function toggleMaximizeLeaderboard() {
+            isMaximized = !isMaximized;
+            const wrapper = document.getElementById('leaderboardWrapper');
+            const boxy = document.getElementById('boxyLeaderboard');
+            const btn = document.getElementById('maxBtn');
+
+            if (isMaximized) {
+                wrapper.className = "glass-panel p-5 rounded-2xl glow-box fixed inset-4 z-50 overflow-y-auto bg-[#02040a]/95";
+                boxy.className = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 py-3 max-h-none";
+                btn.innerText = "⤡ Minimize";
+            } else {
+                wrapper.className = "glass-panel p-4 rounded-2xl glow-box transition-all duration-300";
+                boxy.className = "flex gap-4 overflow-x-auto py-3 transition-all duration-300 max-h-[220px]";
+                btn.innerText = "⤢ Maximize";
+            }
         }
 
         // --- FORM SUBMISSION HANDLER ---
@@ -222,8 +266,8 @@
                     myTeamId = data[0].id;
                     localStorage.setItem('nexora_my_team_id', myTeamId);
                 }
-                switchToArena();
                 fetchSubmissions();
+                document.getElementById('successModal').classList.remove('hidden');
             }
         });
 
@@ -281,7 +325,7 @@
                 if (avatar.userData.teamId === teamId) {
                     const vector = new THREE.Vector3();
                     avatar.getWorldPosition(vector);
-                    vector.y += 2.8;
+                    vector.y += 3.0;
                     vector.project(camera);
 
                     const container = document.getElementById('canvas-container');
@@ -336,7 +380,7 @@
                 card.innerHTML = `
                     <div>
                         <div class="flex justify-between items-center mb-1.5">
-                            <span class="text-[10px] text-cyan-400 font-mono font-bold uppercase">#${idx + 1} ${isMyCard ? '★ YOUR TEAM' : ''}</span>
+                            <span class="text-[10px] text-cyan-400 font-mono font-bold uppercase">Submission ${isMyCard ? '★ YOUR TEAM' : ''}</span>
                             <span class="text-[10px] text-gray-400 font-mono">${escapeHtml(sub.timestamp)}</span>
                         </div>
                         <h4 class="font-orbitron font-bold text-sm text-white truncate">${escapeHtml(sub.team_name)}</h4>
@@ -357,14 +401,14 @@
             });
         }
 
-        // --- THREE.JS HIGH-END 3D ARENA & AVATARS ---
+        // --- THREE.JS MARVEL HERO 3D ARENA & AVATARS ---
         function initThreeJS() {
             const container = document.getElementById('canvas-container');
             scene = new THREE.Scene();
-            scene.fog = new THREE.FogExp2(0x02040a, 0.02);
+            scene.fog = new THREE.FogExp2(0x02040a, 0.018);
 
             camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
-            camera.position.set(0, 8, 16);
+            camera.position.set(0, 9, 18);
             camera.lookAt(0, 0, 0);
 
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -374,30 +418,29 @@
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             container.appendChild(renderer.domElement);
 
-            // Lighting setup for realistic cyberpunk shine
-            scene.add(new THREE.AmbientLight(0x00f2fe, 0.6));
+            // Cinematic Lighting
+            scene.add(new THREE.AmbientLight(0x00f2fe, 0.7));
             
-            const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
-            dirLight.position.set(10, 20, 10);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
+            dirLight.position.set(15, 25, 15);
             dirLight.castShadow = true;
             scene.add(dirLight);
 
-            const neonPoint = new THREE.PointLight(0x00f2fe, 3, 50);
-            neonPoint.position.set(0, 12, 0);
+            const neonPoint = new THREE.PointLight(0x00f2fe, 3.5, 60);
+            neonPoint.position.set(0, 14, 0);
             scene.add(neonPoint);
 
             // High-End Cyber Grid Ground
-            const gridHelper = new THREE.GridHelper(60, 60, 0x00f2fe, 0x1e3a8a);
+            const gridHelper = new THREE.GridHelper(80, 80, 0x00f2fe, 0x1e3a8a);
             gridHelper.position.y = -1;
             scene.add(gridHelper);
 
-            // Circular Neon Arena Ring Floor
-            const ringGeo = new THREE.RingGeometry(1, 24, 32);
-            const ringMat = new THREE.MeshStandardMaterial({ color: 0x0a192f, side: THREE.DoubleSide, roughness: 0.2, metalness: 0.8 });
-            const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-            ringMesh.rotation.x = Math.PI / 2;
-            ringMesh.position.y = -0.99;
-            scene.add(ringMesh);
+            // Circular Arena Platform Base
+            const baseGeo = new THREE.CylinderGeometry(28, 30, 0.4, 48);
+            const baseMat = new THREE.MeshStandardMaterial({ color: 0x050b18, roughness: 0.1, metalness: 0.9 });
+            const baseMesh = new THREE.Mesh(baseGeo, baseMat);
+            baseMesh.position.y = -1.2;
+            scene.add(baseMesh);
 
             container.addEventListener('mousedown', (e) => { isDragging = true; previousMousePosition = { x: e.clientX, y: e.clientY }; });
             window.addEventListener('mouseup', () => { isDragging = false; });
@@ -411,7 +454,7 @@
             container.addEventListener('wheel', (e) => {
                 e.preventDefault();
                 camera.position.z += e.deltaY * 0.01;
-                camera.position.z = Math.max(5, Math.min(30, camera.position.z));
+                camera.position.z = Math.max(6, Math.min(35, camera.position.z));
             }, { passive: false });
 
             avatarGroup = new THREE.Group();
@@ -423,33 +466,40 @@
         function zoomCamera(direction) {
             if (!camera) return;
             camera.position.z += direction * -2;
-            camera.position.z = Math.max(5, Math.min(30, camera.position.z));
+            camera.position.z = Math.max(6, Math.min(35, camera.position.z));
         }
 
-        function createRealisticAvatar(teamName, timestamp, teamId, index) {
+        function createMarvelHeroAvatar(teamName, timestamp, teamId, index) {
             const group = new THREE.Group();
             group.userData = { teamId: teamId };
 
             const isMine = (teamId === myTeamId);
-            const cyberMat = new THREE.MeshStandardMaterial({ 
+            const heroMat = new THREE.MeshStandardMaterial({ 
                 color: isMine ? 0xffd700 : 0x00f2fe, 
-                emissive: isMine ? 0xffaa00 : 0x0055ff, 
+                emissive: isMine ? 0xff6600 : 0x0055ff, 
                 emissiveIntensity: 0.5, 
                 roughness: 0.2, 
-                metalness: 0.9 
+                metalness: 0.95 
             });
 
-            // Torso
-            const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.2, 0.9, 16), cyberMat);
-            torso.position.y = 0.8;
+            const armorMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.3, metalness: 0.8 });
+
+            // Hero Torso (Armor Plate)
+            const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.22, 1.0, 16), heroMat);
+            torso.position.y = 0.85;
             group.add(torso);
 
-            // Head Sphere
-            const head = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 16), cyberMat);
-            head.position.y = 1.55;
+            // Arc Reactor Chest Core
+            const coreMesh = new THREE.Mesh(new THREE.SphereGeometry(0.08, 16, 16), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+            coreMesh.position.set(0, 0.9, 0.22);
+            group.add(coreMesh);
+
+            // Helmet / Head
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 16), heroMat);
+            head.position.y = 1.65;
             group.add(head);
 
-            // Emoji Face on Head
+            // Emoji Hero Face Visor
             const faceCanvas = document.createElement('canvas');
             const faceCtx = faceCanvas.getContext('2d');
             faceCanvas.width = 128;
@@ -464,30 +514,30 @@
 
             const faceTexture = new THREE.CanvasTexture(faceCanvas);
             const faceMat = new THREE.MeshBasicMaterial({ map: faceTexture });
-            const faceMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.26, 0.26), faceMat);
-            faceMesh.position.set(0, 1.55, 0.23);
+            const faceMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.28, 0.28), faceMat);
+            faceMesh.position.set(0, 1.65, 0.24);
             group.add(faceMesh);
 
-            // Arms
-            const armGeo = new THREE.CylinderGeometry(0.07, 0.07, 0.7, 8);
-            const leftArm = new THREE.Mesh(armGeo, cyberMat);
-            leftArm.position.set(-0.35, 0.85, 0);
-            leftArm.rotation.z = 0.25;
+            // Articulated Arms
+            const armGeo = new THREE.CylinderGeometry(0.07, 0.07, 0.75, 8);
+            const leftArm = new THREE.Mesh(armGeo, armorMat);
+            leftArm.position.set(-0.38, 0.9, 0);
+            leftArm.rotation.z = 0.3;
             group.add(leftArm);
 
-            const rightArm = new THREE.Mesh(armGeo, cyberMat);
-            rightArm.position.set(0.35, 0.85, 0);
-            rightArm.rotation.z = -0.25;
+            const rightArm = new THREE.Mesh(armGeo, armorMat);
+            rightArm.position.set(0.38, 0.9, 0);
+            rightArm.rotation.z = -0.3;
             group.add(rightArm);
 
-            // Legs
-            const legGeo = new THREE.CylinderGeometry(0.08, 0.07, 0.8, 8);
-            const leftLeg = new THREE.Mesh(legGeo, cyberMat);
-            leftLeg.position.set(-0.15, 0.2, 0);
+            // Articulated Legs
+            const legGeo = new THREE.CylinderGeometry(0.08, 0.07, 0.85, 8);
+            const leftLeg = new THREE.Mesh(legGeo, armorMat);
+            leftLeg.position.set(-0.16, 0.2, 0);
             group.add(leftLeg);
 
-            const rightLeg = new THREE.Mesh(legGeo, cyberMat);
-            rightLeg.position.set(0.15, 0.2, 0);
+            const rightLeg = new THREE.Mesh(legGeo, armorMat);
+            rightLeg.position.set(0.16, 0.2, 0);
             group.add(rightLeg);
 
             // Floating Name & Timestamp Board
@@ -514,8 +564,8 @@
             const texture = new THREE.CanvasTexture(canvas);
             const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
             const sprite = new THREE.Sprite(spriteMaterial);
-            sprite.position.set(0, 2.4, 0);
-            sprite.scale.set(2.2, 0.65, 1);
+            sprite.position.set(0, 2.6, 0);
+            sprite.scale.set(2.3, 0.68, 1);
             group.add(sprite);
 
             return group;
@@ -525,9 +575,9 @@
             if (!avatarGroup) return;
             avatarGroup.clear();
             submissions.forEach((sub, idx) => {
-                const avatar = createRealisticAvatar(sub.team_name, sub.timestamp, sub.id, idx);
+                const avatar = createMarvelHeroAvatar(sub.team_name, sub.timestamp, sub.id, idx);
                 const angle = idx * 0.75;
-                const radius = 2.8 + Math.floor(idx / 6) * 2.8;
+                const radius = 3.0 + Math.floor(idx / 6) * 3.0;
                 avatar.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
                 avatarGroup.add(avatar);
             });
